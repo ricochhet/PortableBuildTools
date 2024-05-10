@@ -1,2 +1,6 @@
 build
 target
+*.exe
+*.obj
+*.bin
+*.o

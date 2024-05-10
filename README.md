@@ -11,16 +11,44 @@ Create standalone instances of VS Build Tools.
 - Output is located under `build/sdk_standalone`
 
 ## Options
-- Set `DOWNLOAD_ARM_TARGETS` in `downloader.py` to `True` if you want to develop for ARM devices.
-    - ARM compatibility is untested, and may be broken. Feel free to create a pull request fixing it if it is broken.
-- Set `DOWNLOAD_SPECTRE_LIBS` in `downloader.py` to `True` if you want to use the Spectre mitigated libraries.
-    - These libraries are not included in `set_vars` scripts.
+- `--show-versions`
+    - Action: Store True
+    - Description: Show available MSVC and Windows SDK versions.
 
-## Additional
+- `--accept-license`
+    Action: Store True
+    - Description: Automatically accept the license.
+
+- `--msvc-version`
+    - Argument: <version>
+    - Description: Get a specific MSVC version.
+
+- `--sdk-version`
+    - Argument: <version>
+    - Description: Get a specific Windows SDK version.
+
+- `--preview`
+    - Action: Store True
+    - Description: Use the preview channel for Preview versions.
+
+- `--dl-spectre`
+    - Action: Store True
+    - Description: Download spectre mitigated libraries.
+
+- `--dl-arm-targets`
+    - Action: Store True
+    - Description: Download ARM/ARM64 targets.
+
+## Testing
+Rudimentary testing is located in `tests/*`
+- After downloading the standalone SDK, run the tests via `build_win.bat`.
+- View dumpbin header information to ensure the executables were built with the correct architecture.
+- ARM and ARM64 targets have not been extensively tested on any substantial projects and may not function correctly.
+
+## Information
 - The default download options include (almost) everything you need to build and run the majority of C/C++ applications and libraries.
 - Use [SdkStandaloneSessionReference.log](./SdkStandaloneSessionReference.log) to view all files downloaded with the `microsoft.vc.{msvc_ver}, microsoft.visualcpp, microsoft.vs, microsoft.visualstudio` prefixes.
-    - Set `DOWNLOAD_ALL` to `True` if you want to download everything. ~20GB
-    - This is useful for instances where you wish to download only a small subset of what comes with VS.
+    - Set `DOWNLOAD_ALL` to `True` if you want to download everything with the stated prefixes. ~20GB
 - rust-msiexec ([MSIExtract](https://github.com/Super-Pizza/MSIExtract)) is used over options such as `msiexec` or `lessmsi` due to issues with how arguments and spaces in paths are handled with the alternatives.
 
 ### Tools

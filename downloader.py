@@ -22,18 +22,12 @@ from pathlib import Path
 OUTPUT = Path("sdk_standalone")        # output folder
 DOWNLOADS = Path("downloads") # temporary download files
 
-# Only supports x64 and x86 hosts with x86 and x64 targets.
-# ARM and ARM64 targets have not been tested and may be broken.
-#   if it is broken, figure out what is wrong and open a pull request fixing it.
-#   if it works, please open an issue stating that it does in fact work . . . I don't care to test these.
-# https://github.com/ricochhet/SdkStandalone/pulls
 HOST   = "x64" # or x86
 DOWNLOAD_SPECTRE_LIBS = False # or False
 DOWNLOAD_ARM_TARGETS = False # or False
 MANIFEST_URL = "https://aka.ms/vs/17/release/channel"
 MANIFEST_PREVIEW_URL = "https://aka.ms/vs/17/pre/channel"
 
-# Shouldn't be necessary.
 # If there is a part of this downloader that you feel is missing by default, create an issue,
 #   rather than switching download_all to true. . .
 # https://github.com/ricochhet/SdkStandalone/issues

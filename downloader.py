@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Originally forked from: https://gist.github.com/mmozeiko/7f3162ec2988e81e56d5c4e22cde9977
 # Significant modifications have been made since to maximize compatibility.
+# https://github.com/ricochhet/SdkStandalone
 
 import io
 import os
@@ -21,17 +22,31 @@ from pathlib import Path
 OUTPUT = Path("sdk_standalone")        # output folder
 DOWNLOADS = Path("downloads") # temporary download files
 
-# other architectures may work or may not - not really tested.
-# only tested host x64 with x86 and x64 targets.
+# Only supports x64 and x86 hosts with x86 and x64 targets.
+# ARM and ARM64 targets have not been tested and may be broken.
+#   if it is broken, figure out what is wrong and open a pull request fixing it.
+#   if it works, please open an issue stating that it does in fact work . . . I don't care to test these.
+# https://github.com/ricochhet/SdkStandalone/pulls
 HOST   = "x64" # or x86
-TARGETX64 = "x64" # or x86, arm, arm64
-TARGETX86 = "x86" # TARGETX* shouldn't change, unless you are targeting ARM devices.
-
+DOWNLOAD_SPECTRE_LIBS = False # or False
+DOWNLOAD_ARM_TARGETS = False # or False
 MANIFEST_URL = "https://aka.ms/vs/17/release/channel"
 MANIFEST_PREVIEW_URL = "https://aka.ms/vs/17/pre/channel"
 
+# Shouldn't be necessary.
+# If there is a part of this downloader that you feel is missing by default, create an issue,
+#   rather than switching download_all to true. . .
+# https://github.com/ricochhet/SdkStandalone/issues
 DOWNLOAD_ALL = False
-OUTPUT_CLEANUP = False # Only switch to 'True' if you know what you are doing.
+
+# Only switch to 'True' if you know what you are doing.
+OUTPUT_CLEANUP = False 
+
+# DO NOT MODIFY
+TARGETX64 = "x64"
+TARGETX86 = "x86"
+TARGETARM = "arm"
+TARGETARM64 = "arm64"
 
 ssl_context = None
 
@@ -145,7 +160,7 @@ for pid,p in packages.items():
     if pver[0].isnumeric():
       msvc[pver] = pid
   elif pid.startswith("Microsoft.VisualStudio.Component.Windows10SDK.".lower()) or \
-       pid.startswith("Microsoft.VisualStudio.Component.Windows11SDK.".lower()):
+      pid.startswith("Microsoft.VisualStudio.Component.Windows11SDK.".lower()):
     pver = pid.split(".")[-1]
     if pver.isnumeric():
       sdk[pver] = pid
@@ -186,10 +201,10 @@ if not args.accept_license:
 OUTPUT.mkdir(exist_ok=True)
 DOWNLOADS.mkdir(exist_ok=True)
 
+logging.basicConfig(filename="downloader.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 ### download MSVC
 if DOWNLOAD_ALL:
-  logging.basicConfig(filename="downloader.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
   prefixes = [f"microsoft.vc.{msvc_ver}", "microsoft.visualcpp", "microsoft.vs", "microsoft.visualstudio"]
   for prefix in prefixes:
       for pkg in packages:
@@ -210,7 +225,7 @@ if DOWNLOAD_ALL:
                                   out = OUTPUT / Path(decoded_name).relative_to("Contents")
                                   out.parent.mkdir(parents=True, exist_ok=True)
                                   out.write_bytes(z.read(name))
-                                  logging.info(f"Package: {pkg}, Filename: {filename}, URL: {payload["url"]}, SHA256: {payload["sha256"]}, Extracted file: {str(out)}")
+                                  logging.info(f"Package: {pkg}, Filename: {filename}, URL: {payload["url"]}, SHA256: {payload["sha256"]}, File: {str(out)}")
 else:
   msvc_packages = [
     # MSVC vcvars
@@ -227,7 +242,7 @@ else:
     f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETX86}.res.base",
     # MSVC headers
     f"microsoft.vc.{msvc_ver}.crt.headers.base",
-    # MSVC Libs x86
+    # MSVC Libs x64
     f"microsoft.vc.{msvc_ver}.crt.{TARGETX64}.desktop.base",
     f"microsoft.vc.{msvc_ver}.crt.{TARGETX64}.store.base",
     # MSVC Libs x86
@@ -245,7 +260,8 @@ else:
     # DIA SDK
     "microsoft.visualcpp.dia.sdk",
     # MSVC redist
-    "microsoft.visualcpp.crt.redist.x64",
+    f"microsoft.visualcpp.crt.redist.{TARGETX64}",
+    f"microsoft.visualcpp.crt.redist.{TARGETX86}",
     # MSVC UnitTest
     "microsoft.visualstudio.vc.unittest.desktop.build.core",
     "microsoft.visualstudio.testtools.codecoverage",
@@ -260,6 +276,27 @@ else:
     #f"microsoft.vc.{msvc_ver}.crt.redist.x64.base",
   ]
 
+  if DOWNLOAD_SPECTRE_LIBS:
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETX64}.desktop.spectre.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETX86}.desktop.spectre.base")
+
+  if DOWNLOAD_ARM_TARGETS:
+    msvc_packages.append(f"microsoft.visualcpp.tools.host{HOST}.target{TARGETARM}")
+    msvc_packages.append(f"microsoft.visualcpp.tools.host{HOST}.target{TARGETARM64}")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETARM}.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETARM}.res.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETARM64}.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETARM64}.res.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETARM}.desktop.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETARM}.store.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETARM64}.desktop.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETARM64}.store.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETARM}.base")
+    msvc_packages.append(f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETARM64}.base")
+    if DOWNLOAD_SPECTRE_LIBS:
+      msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETARM}.desktop.spectre.base")
+      msvc_packages.append(f"microsoft.vc.{msvc_ver}.crt.{TARGETARM64}.desktop.spectre.base")    
+
   for pkg in msvc_packages:
     p = first(packages[pkg], lambda p: "language" not in p or p.get("language") in (None, "en-US"))
     for payload in p["payloads"]:
@@ -272,26 +309,40 @@ else:
             out = OUTPUT / Path(decoded_name).relative_to("Contents")
             out.parent.mkdir(parents=True, exist_ok=True)
             out.write_bytes(z.read(name))
+            logging.info(f"Package: {pkg}, Filename: {filename}, URL: {payload["url"]}, SHA256: {payload["sha256"]}, File: {str(out)}")
 
 
 ### download Windows SDK
 
 sdk_packages = [
   # Windows SDK tools (like rc.exe & mt.exe)
-  "Windows SDK for Windows Store Apps Tools-x86_en-us.msi",
+  f"Windows SDK for Windows Store Apps Tools-{TARGETX86}_en-us.msi",
   # Windows SDK headers
-  "Windows SDK for Windows Store Apps Headers-x86_en-us.msi",
-  "Windows SDK Desktop Headers x86-x86_en-us.msi",
-  "Windows SDK Desktop Headers x64-x86_en-us.msi",
+  f"Windows SDK for Windows Store Apps Headers-{TARGETX86}_en-us.msi",
+  f"Windows SDK Desktop Headers {TARGETX86}-{TARGETX86}_en-us.msi",
+  f"Windows SDK Desktop Headers {TARGETX64}-x86_en-us.msi",
   # Windows SDK libs
-  "Windows SDK for Windows Store Apps Libs-x86_en-us.msi",
-  f"Windows SDK Desktop Libs {TARGETX64}-x86_en-us.msi",
-  f"Windows SDK Desktop Libs {TARGETX86}-x86_en-us.msi",
+  f"Windows SDK for Windows Store Apps Libs-{TARGETX86}_en-us.msi",
+  f"Windows SDK Desktop Libs {TARGETX64}-{TARGETX86}_en-us.msi",
+  f"Windows SDK Desktop Libs {TARGETX86}-{TARGETX86}_en-us.msi",
+  # Windows SDK tools
+  f"Windows SDK Desktop Tools {TARGETX64}-{TARGETX86}_en-us.msi",
+  f"Windows SDK Desktop Tools {TARGETX86}-{TARGETX86}_en-us.msi",
   # CRT headers & libs
-  "Universal CRT Headers Libraries and Sources-x86_en-us.msi",
+  f"Universal CRT Headers Libraries and Sources-{TARGETX86}_en-us.msi",
   # CRT redist
-  "Universal CRT Redistributable-x86_en-us.msi",
+  f"Universal CRT Redistributable-{TARGETX86}_en-us.msi",
+  # Signing tools
+  f"Windows SDK Signing Tools-{TARGETX86}_en-us.msi",
 ]
+
+if DOWNLOAD_ARM_TARGETS:
+  sdk_packages.append(f"Windows SDK Desktop Headers {TARGETARM64}-{TARGETX86}_en-us.msi")
+  sdk_packages.append(f"Windows SDK Desktop Headers {TARGETARM}-{TARGETX86}_en-us.msi")
+  sdk_packages.append(f"Windows SDK Desktop Libs {TARGETARM64}-{TARGETX86}_en-us.msi")
+  sdk_packages.append(f"Windows SDK Desktop Libs {TARGETARM}-{TARGETX86}_en-us.msi")
+  sdk_packages.append(f"Windows SDK ARM Desktop Tools-{TARGETX86}_en-us.msi")
+  sdk_packages.append(f"Windows SDK Desktop Tools {TARGETARM64}-{TARGETX86}_en-us.msi")
 
 with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
   dstX64 = Path(d)
@@ -308,11 +359,13 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
     msi.append(DOWNLOADS / pkg)
     data = download_progress(payload["url"], payload["sha256"], pkg, pkg)
     cabs += list(get_msi_cabs(data))
+    logging.info(f"Package: {pkg}, Filename: {payload}, URL: {payload["url"]}, SHA256: {payload["sha256"]}, File: {str(pkg)}")
 
   # download .cab files
   for pkg in cabs:
     payload = first(sdk_pkg["payloads"], lambda p: p["fileName"] == f"Installers\\{pkg}") #NOSONAR
     download_progress(payload["url"], payload["sha256"], pkg, pkg)
+    logging.info(f"Package: {pkg}, Filename: {payload}, URL: {payload["url"]}, SHA256: {payload["sha256"]}, File: {str(pkg)}")
 
   print("Unpacking msi files...")
 
@@ -331,6 +384,9 @@ sdkv = list((OUTPUT / "Windows Kits/10/bin").glob("*"))[0].name
 
 dstX64 = OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETX64}"
 dstX86 = OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETX86}"
+if DOWNLOAD_ARM_TARGETS:
+  dstARM = OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETARM}"
+  dstARM64 = OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETARM64}"
 
 DOWNLOAD_FOLDER = Path("crtd")
 (DOWNLOADS / DOWNLOAD_FOLDER).mkdir(exist_ok=True)
@@ -348,6 +404,9 @@ with tempfile.TemporaryDirectory(dir=OUTPUT) as d2:
   for f in first(Path(d2).glob("System*"), lambda x: True).iterdir():
     shutil.copy(f, dstX64 / f.name)
     shutil.copy(f, dstX86 / f.name)
+    if DOWNLOAD_ARM_TARGETS:
+      shutil.copy(f, dstARM / f.name)
+      shutil.copy(f, dstARM64 / f.name)
 
 
 # download DIA SDK and put msdia140.dll file into MSVC folder
@@ -366,8 +425,8 @@ msi = DOWNLOADS / DOWNLOAD_FOLDER / first(dia["payloads"], lambda p: p["fileName
 with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d2:
   subprocess.check_call(["rust-msiexec", f"{str(msi)}", f"{Path(d2).resolve()}"])
 
-  if HOST == "x86": msdia = "msdia140.dll" #NOSONAR
-  elif HOST == "x64": msdia = "amd64/msdia140.dll"
+  if HOST == TARGETX86: msdia = "msdia140.dll" #NOSONAR
+  elif HOST == TARGETX64: msdia = "amd64/msdia140.dll"
   else: exit("unknown")
 
   # remove read-only attribute
@@ -379,9 +438,21 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d2:
   if targetX86.exists():
     targetX86.chmod(stat.S_IWRITE)
 
+  if DOWNLOAD_ARM_TARGETS:
+    targetARM = dstARM / "msdia140.dll"
+    if targetARM.exists():
+      targetARM.chmod(stat.S_IWRITE)
+
+    targetARM64 = dstARM64 / "msdia140.dll"
+    if targetARM64.exists():
+      targetARM64.chmod(stat.S_IWRITE)
+
   src = Path(d2) / "Program Files/Microsoft Visual Studio 14.0/DIA SDK/bin" / msdia
   shutil.copy(src, targetX64)
   shutil.copy(src, targetX86)
+  if DOWNLOAD_ARM_TARGETS:
+    shutil.copy(src, targetARM)
+    shutil.copy(src, targetARM64)
 
 
 ### cleanup
@@ -394,7 +465,7 @@ if OUTPUT_CLEANUP:
     f.unlink()
   for f in ["Catalogs", "DesignTime", f"bin/{sdkv}/chpe", f"Lib/{sdkv}/ucrt_enclave"]:
     shutil.rmtree(OUTPUT / "Windows Kits/10" / f, ignore_errors=True)
-  for arch in ["x86", "x64", "arm", "arm64"]:
+  for arch in [TARGETX86, TARGETX64, TARGETARM, TARGETARM64]:
     if arch != TARGETX64:
       shutil.rmtree(OUTPUT / "Windows Kits/10/Lib" / sdkv / "ucrt" / arch)
       shutil.rmtree(OUTPUT / "Windows Kits/10/Lib" / sdkv / "um" / arch)
@@ -402,14 +473,16 @@ if OUTPUT_CLEANUP:
       shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{arch}", ignore_errors=True)
       shutil.rmtree(OUTPUT / "Windows Kits/10/bin" / sdkv / arch)
 
-for arch in ["x86", "x64", "arm", "arm64"]:
+for arch in [TARGETX86, TARGETX64, TARGETARM, TARGETARM64]:
   if arch != HOST:
     shutil.rmtree(OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{arch}", ignore_errors=True)
 
 # executable that is collecting & sending telemetry every time cl/link runs
 (OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETX64}/vctip.exe").unlink(missing_ok=True)
 (OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETX86}/vctip.exe").unlink(missing_ok=True)
-
+if DOWNLOAD_ARM_TARGETS:
+  (OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETARM}/vctip.exe").unlink(missing_ok=True)
+  (OUTPUT / "VC/Tools/MSVC" / msvcv / f"bin/Host{HOST}/{TARGETARM64}/vctip.exe").unlink(missing_ok=True)
 
 SET_VARS64 = f"""@echo off
 
@@ -422,7 +495,7 @@ SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
 SET UniversalCRTSdkDir=%WindowsSdkDir%
 SET WindowsSDKVersion={sdkv}\\
 SET WindowsSDKLibVersion={sdkv}\\
-SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%x64\\
+SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETX64}\\
 
 SET LIB=
 SET INCLUDE=
@@ -436,7 +509,7 @@ SET LIBPATH=
 @if not "%UCRTVersion%" == "" @set INCLUDE=%UniversalCRTSdkDir%include\\%UCRTVersion%\\ucrt;%INCLUDE%
 @if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETX64};%LIB%
 
-@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETX64};%WindowsSdkDir%BIN\\{sdkv}\\x86;%PATH%
+@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETX64};%WindowsSdkDir%BIN\\{sdkv}\\{TARGETX86};%PATH%
 @if not "%WindowsSdkDir%" == "" @set INCLUDE=%WindowsSdkDir%include\\%WindowsSDKVersion%shared;%WindowsSdkDir%include\\%WindowsSDKVersion%um;%WindowsSdkDir%include\\%WindowsSDKVersion%winrt;%INCLUDE%
 @if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETX64};%LIB%
 @if not "%WindowsSdkDir%" == "" @set LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;%LIBPATH%
@@ -468,7 +541,7 @@ SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
 SET UniversalCRTSdkDir=%WindowsSdkDir%
 SET WindowsSDKVersion={sdkv}\\
 SET WindowsSDKLibVersion={sdkv}\\
-SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%x86\\
+SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETX86}\\
 
 SET LIB=
 SET INCLUDE=
@@ -504,8 +577,96 @@ SET LIBPATH=
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store\\references;%LIBPATH%
 """
 
+SET_VARS_ARM32 = f"""@echo off
+
+SET ROOT=%~dp0
+SET VSINSTALLDIR=%ROOT%\\
+SET VCINSTALLDIR=%VSINSTALLDIR%VC\\
+SET VS140COMNTOOLS=%VSINSTALLDIR%Common7\\Tools\\
+SET UCRTVersion={sdkv}
+SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
+SET UniversalCRTSdkDir=%WindowsSdkDir%
+SET WindowsSDKVersion={sdkv}\\
+SET WindowsSDKLibVersion={sdkv}\\
+SET WindowsSDK_ExecutablePath_arm=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETARM}\\
+
+SET LIB=
+SET INCLUDE=
+SET LIBPATH=
+
+@if exist "%VSINSTALLDIR%Common7\\Tools" set PATH=%VSINSTALLDIR%Common7\\Tools;%PATH%
+@if exist "%VSINSTALLDIR%Common7\\IDE" set PATH=%VSINSTALLDIR%Common7\\IDE;%PATH%
+@if exist "%VCINSTALLDIR%VCPackages" set PATH=%VCINSTALLDIR%VCPackages;%PATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM}" set PATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM};%PATH%
+
+@if not "%UCRTVersion%" == "" @set INCLUDE=%UniversalCRTSdkDir%include\\%UCRTVersion%\\ucrt;%INCLUDE%
+@if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETARM};%LIB%
+
+@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM};%PATH%
+@if not "%WindowsSdkDir%" == "" @set INCLUDE=%WindowsSdkDir%include\\%WindowsSDKVersion%shared;%WindowsSdkDir%include\\%WindowsSDKVersion%um;%WindowsSdkDir%include\\%WindowsSDKVersion%winrt;%INCLUDE%
+@if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETARM};%LIB%
+@if not "%WindowsSdkDir%" == "" @set LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;%LIBPATH%
+
+@if not "%WindowsSDK_ExecutablePath_arm%" == "" @set PATH=%WindowsSDK_ExecutablePath_arm%;%PATH%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM};%LIB%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM};%LIB%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store;%LIB%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM};%LIBPATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM};%LIBPATH%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store\\references;%LIBPATH%
+"""
+
+SET_VARS_ARM64 = f"""@echo off
+
+SET ROOT=%~dp0
+SET VSINSTALLDIR=%ROOT%\\
+SET VCINSTALLDIR=%VSINSTALLDIR%VC\\
+SET VS140COMNTOOLS=%VSINSTALLDIR%Common7\\Tools\\
+SET UCRTVersion={sdkv}
+SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
+SET UniversalCRTSdkDir=%WindowsSdkDir%
+SET WindowsSDKVersion={sdkv}\\
+SET WindowsSDKLibVersion={sdkv}\\
+SET WindowsSDK_ExecutablePath_arm64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETARM64}\\
+
+SET LIB=
+SET INCLUDE=
+SET LIBPATH=
+
+@if exist "%VSINSTALLDIR%Common7\\Tools" set PATH=%VSINSTALLDIR%Common7\\Tools;%PATH%
+@if exist "%VSINSTALLDIR%Common7\\IDE" set PATH=%VSINSTALLDIR%Common7\\IDE;%PATH%
+@if exist "%VCINSTALLDIR%VCPackages" set PATH=%VCINSTALLDIR%VCPackages;%PATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM64}" set PATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM64};%PATH%
+
+@if not "%UCRTVersion%" == "" @set INCLUDE=%UniversalCRTSdkDir%include\\%UCRTVersion%\\ucrt;%INCLUDE%
+@if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETARM64};%LIB%
+
+@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM64};%PATH%
+@if not "%WindowsSdkDir%" == "" @set INCLUDE=%WindowsSdkDir%include\\%WindowsSDKVersion%shared;%WindowsSdkDir%include\\%WindowsSDKVersion%um;%WindowsSdkDir%include\\%WindowsSDKVersion%winrt;%INCLUDE%
+@if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETARM64};%LIB%
+@if not "%WindowsSdkDir%" == "" @set LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;%LIBPATH%
+
+@if not "%WindowsSDK_ExecutablePath_arm64%" == "" @set PATH=%WindowsSDK_ExecutablePath_arm64%;%PATH%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64};%LIB%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64};%LIB%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store;%LIB%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64};%LIBPATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64};%LIBPATH%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store\\references;%LIBPATH%
+"""
+
 (OUTPUT / "set_vars32.bat").write_text(SET_VARS32)
 (OUTPUT / "set_vars64.bat").write_text(SET_VARS64)
+(OUTPUT / "set_vars_arm32.bat").write_text(SET_VARS_ARM32)
+(OUTPUT / "set_vars_arm64.bat").write_text(SET_VARS_ARM64)
 
 print(f"Total downloaded: {total_download>>20} MB")
 print("Done!")

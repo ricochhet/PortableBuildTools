@@ -21,7 +21,8 @@ from pathlib import Path
 OUTPUT = Path("sdk_standalone")        # output folder
 DOWNLOADS = Path("downloads") # temporary download files
 
-# other architectures may work or may not - not really tested
+# other architectures may work or may not - not really tested.
+# only tested host x64 with x86 and x64 targets.
 HOST   = "x64" # or x86
 TARGETX64 = "x64" # or x86, arm, arm64
 TARGETX86 = "x86" # TARGETX* shouldn't change, unless you are targeting ARM devices.
@@ -187,9 +188,8 @@ DOWNLOADS.mkdir(exist_ok=True)
 
 
 ### download MSVC
-logging.basicConfig(filename="downloader.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
 if DOWNLOAD_ALL:
+  logging.basicConfig(filename="downloader.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
   prefixes = [f"microsoft.vc.{msvc_ver}", "microsoft.visualcpp", "microsoft.vs", "microsoft.visualstudio"]
   for prefix in prefixes:
       for pkg in packages:
@@ -239,6 +239,9 @@ else:
     f"microsoft.vc.{msvc_ver}.asan.headers.base",
     f"microsoft.vc.{msvc_ver}.asan.{TARGETX64}.base",
     f"microsoft.vc.{msvc_ver}.asan.{TARGETX86}.base",
+    # MSVC tools
+    f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETX64}.base",
+    f"microsoft.vc.{msvc_ver}.tools.host{HOST}.target{TARGETX86}.base",
     # DIA SDK
     "microsoft.visualcpp.dia.sdk",
     # MSVC redist
@@ -279,9 +282,11 @@ sdk_packages = [
   # Windows SDK headers
   "Windows SDK for Windows Store Apps Headers-x86_en-us.msi",
   "Windows SDK Desktop Headers x86-x86_en-us.msi",
+  "Windows SDK Desktop Headers x64-x86_en-us.msi",
   # Windows SDK libs
   "Windows SDK for Windows Store Apps Libs-x86_en-us.msi",
   f"Windows SDK Desktop Libs {TARGETX64}-x86_en-us.msi",
+  f"Windows SDK Desktop Libs {TARGETX86}-x86_en-us.msi",
   # CRT headers & libs
   "Universal CRT Headers Libraries and Sources-x86_en-us.msi",
   # CRT redist

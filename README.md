@@ -17,6 +17,10 @@ Create standalone instances of VS Build Tools.
     - This is useful for instances where you wish to download only a small subset of what comes with VS.
 - rust-msiexec ([MSIExtract](https://github.com/Super-Pizza/MSIExtract)) is used over options such as `msiexec` or `lessmsi` due to issues with how arguments and spaces in paths are handled with the alternatives.
 
+### Tools
+- `dumpbin /headers example.dll`
+- `corflags example.dll`
+
 # License
 See [LICENSE](./LICENSE) file.
 

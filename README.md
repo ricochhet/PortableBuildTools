@@ -8,7 +8,7 @@ Create standalone instances of VS Build Tools.
 
 ## Usage
 - Run the `downloader.ps1` script. This will run `build.ps1` and `downloader.py`.
-- Output is located under `build/Microsoft Visual Studio XX.X`
+- Output is located under `build/sdk_standalone`
 
 ## Options
 - Set `DOWNLOAD_ARM_TARGETS` in `downloader.py` to `True` if you want to develop for ARM devices.

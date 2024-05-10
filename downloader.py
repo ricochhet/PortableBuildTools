@@ -109,8 +109,16 @@ ap.add_argument("--msvc-version", help="Get specific MSVC version")
 ap.add_argument("--sdk-version", help="Get specific Windows SDK version")
 ap.add_argument("--preview", action="store_true", help="Use preview channel for Preview versions")
 
+ap.add_argument("--dl-spectre", action="store_true", help="Download spectre mitigated libraries")
+ap.add_argument("--dl-arm-targets", action="store_true", help="Download ARM/ARM64 targets")
+
 args = ap.parse_args()
 
+DOWNLOAD_SPECTRE_LIBS = True if args.dl_spectre else False
+print(f"DOWNLOAD_SPECTRE_LIBS == {DOWNLOAD_SPECTRE_LIBS}")
+
+DOWNLOAD_ARM_TARGETS = True if args.dl_arm_targets else False
+print(f"DOWNLOAD_ARM_TARGETS == {DOWNLOAD_ARM_TARGETS}")
 
 ### get main manifest
 
@@ -496,6 +504,7 @@ SET UniversalCRTSdkDir=%WindowsSdkDir%
 SET WindowsSDKVersion={sdkv}\\
 SET WindowsSDKLibVersion={sdkv}\\
 SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETX64}\\
+SET VSSPECTRELIBS=false
 
 SET LIB=
 SET INCLUDE=
@@ -523,11 +532,74 @@ SET LIBPATH=
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX64};%LIB%
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64};%LIB%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX64};%LIB%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX64};%LIB%
+)
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX64};%LIBPATH%
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64};%LIBPATH%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX64};%LIBPATH%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX64};%LIBPATH%
+)
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX64}\\store\\references;%LIBPATH%
+"""
+
+SET_VARS_ARM64 = f"""@echo off
+
+SET ROOT=%~dp0
+SET VSINSTALLDIR=%ROOT%\\
+SET VCINSTALLDIR=%VSINSTALLDIR%VC\\
+SET VS140COMNTOOLS=%VSINSTALLDIR%Common7\\Tools\\
+SET UCRTVersion={sdkv}
+SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
+SET UniversalCRTSdkDir=%WindowsSdkDir%
+SET WindowsSDKVersion={sdkv}\\
+SET WindowsSDKLibVersion={sdkv}\\
+SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETARM64}\\
+SET VSSPECTRELIBS=false
+
+SET LIB=
+SET INCLUDE=
+SET LIBPATH=
+
+@if exist "%VSINSTALLDIR%Common7\\Tools" set PATH=%VSINSTALLDIR%Common7\\Tools;%PATH%
+@if exist "%VSINSTALLDIR%Common7\\IDE" set PATH=%VSINSTALLDIR%Common7\\IDE;%PATH%
+@if exist "%VCINSTALLDIR%VCPackages" set PATH=%VCINSTALLDIR%VCPackages;%PATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM64}" set PATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM64};%PATH%
+
+@if not "%UCRTVersion%" == "" @set INCLUDE=%UniversalCRTSdkDir%include\\%UCRTVersion%\\ucrt;%INCLUDE%
+@if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETARM64};%LIB%
+
+@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM64};%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM64};%PATH%
+@if not "%WindowsSdkDir%" == "" @set INCLUDE=%WindowsSdkDir%include\\%WindowsSDKVersion%shared;%WindowsSdkDir%include\\%WindowsSDKVersion%um;%WindowsSdkDir%include\\%WindowsSDKVersion%winrt;%INCLUDE%
+@if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETARM64};%LIB%
+@if not "%WindowsSdkDir%" == "" @set LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;%LIBPATH%
+
+@if not "%WindowsSDK_ExecutablePath_x64%" == "" @set PATH=%WindowsSDK_ExecutablePath_x64%;%PATH%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store;%LIB%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\INCLUDE" set INCLUDE=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\INCLUDE;%INCLUDE%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\INCLUDE" set INCLUDE=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\INCLUDE;%INCLUDE%
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64};%LIB%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64};%LIB%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM64};%LIB%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM64};%LIB%
+)
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64};%LIBPATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64};%LIBPATH%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM64};%LIBPATH%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM64};%LIBPATH%
+)
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store\\references;%LIBPATH%
 """
 
 SET_VARS32 = f"""@echo off
@@ -542,6 +614,7 @@ SET UniversalCRTSdkDir=%WindowsSdkDir%
 SET WindowsSDKVersion={sdkv}\\
 SET WindowsSDKLibVersion={sdkv}\\
 SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETX86}\\
+SET VSSPECTRELIBS=false
 
 SET LIB=
 SET INCLUDE=
@@ -568,11 +641,19 @@ SET LIBPATH=
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX86}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX86};%LIB%
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86};%LIB%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX86}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX86};%LIB%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX86}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX86};%LIB%
+)
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store;%LIB%
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX86}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETX86};%LIBPATH%
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86};%LIBPATH%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX86}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETX86};%LIBPATH%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX86}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETX86};%LIBPATH%
+)
 
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETX86}\\store\\references;%LIBPATH%
 """
@@ -588,50 +669,8 @@ SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
 SET UniversalCRTSdkDir=%WindowsSdkDir%
 SET WindowsSDKVersion={sdkv}\\
 SET WindowsSDKLibVersion={sdkv}\\
-SET WindowsSDK_ExecutablePath_arm=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETARM}\\
-
-SET LIB=
-SET INCLUDE=
-SET LIBPATH=
-
-@if exist "%VSINSTALLDIR%Common7\\Tools" set PATH=%VSINSTALLDIR%Common7\\Tools;%PATH%
-@if exist "%VSINSTALLDIR%Common7\\IDE" set PATH=%VSINSTALLDIR%Common7\\IDE;%PATH%
-@if exist "%VCINSTALLDIR%VCPackages" set PATH=%VCINSTALLDIR%VCPackages;%PATH%
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM}" set PATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM};%PATH%
-
-@if not "%UCRTVersion%" == "" @set INCLUDE=%UniversalCRTSdkDir%include\\%UCRTVersion%\\ucrt;%INCLUDE%
-@if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETARM};%LIB%
-
-@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM};%PATH%
-@if not "%WindowsSdkDir%" == "" @set INCLUDE=%WindowsSdkDir%include\\%WindowsSDKVersion%shared;%WindowsSdkDir%include\\%WindowsSDKVersion%um;%WindowsSdkDir%include\\%WindowsSDKVersion%winrt;%INCLUDE%
-@if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETARM};%LIB%
-@if not "%WindowsSdkDir%" == "" @set LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;%LIBPATH%
-
-@if not "%WindowsSDK_ExecutablePath_arm%" == "" @set PATH=%WindowsSDK_ExecutablePath_arm%;%PATH%
-
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM};%LIB%
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM};%LIB%
-
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store;%LIB%
-
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM};%LIBPATH%
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM};%LIBPATH%
-
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store\\references;%LIBPATH%
-"""
-
-SET_VARS_ARM64 = f"""@echo off
-
-SET ROOT=%~dp0
-SET VSINSTALLDIR=%ROOT%\\
-SET VCINSTALLDIR=%VSINSTALLDIR%VC\\
-SET VS140COMNTOOLS=%VSINSTALLDIR%Common7\\Tools\\
-SET UCRTVersion={sdkv}
-SET WindowsSdkDir=%VSINSTALLDIR%Windows Kits\\10\\
-SET UniversalCRTSdkDir=%WindowsSdkDir%
-SET WindowsSDKVersion={sdkv}\\
-SET WindowsSDKLibVersion={sdkv}\\
-SET WindowsSDK_ExecutablePath_arm64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETARM64}\\
+SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\\10\\BIN\\%WindowsSDKVersion%{TARGETARM}\\
+SET VSSPECTRELIBS=false
 
 SET LIB=
 SET INCLUDE=
@@ -641,26 +680,38 @@ SET LIBPATH=
 @if exist "%VSINSTALLDIR%Common7\\IDE" set PATH=%VSINSTALLDIR%Common7\\IDE;%PATH%
 @if exist "%VCINSTALLDIR%VCPackages" set PATH=%VCINSTALLDIR%VCPackages;%PATH%
 @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM64}" set PATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM64};%PATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM}" set PATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\BIN\\Host{HOST}\\{TARGETARM};%PATH%
 
 @if not "%UCRTVersion%" == "" @set INCLUDE=%UniversalCRTSdkDir%include\\%UCRTVersion%\\ucrt;%INCLUDE%
-@if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETARM64};%LIB%
+@if not "%UCRTVersion%" == "" @set LIB=%UniversalCRTSdkDir%lib\\%UCRTVersion%\\ucrt\\{TARGETARM};%LIB%
 
-@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM64};%PATH%
+@if not "%WindowsSdkDir%" == "" @set PATH=%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM};%WindowsSdkDir%BIN\\{sdkv}\\{TARGETARM};%PATH%
 @if not "%WindowsSdkDir%" == "" @set INCLUDE=%WindowsSdkDir%include\\%WindowsSDKVersion%shared;%WindowsSdkDir%include\\%WindowsSDKVersion%um;%WindowsSdkDir%include\\%WindowsSDKVersion%winrt;%INCLUDE%
-@if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETARM64};%LIB%
+@if not "%WindowsSdkDir%" == "" @set LIB=%WindowsSdkDir%lib\\%WindowsSDKLibVersion%um\\{TARGETARM};%LIB%
 @if not "%WindowsSdkDir%" == "" @set LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\\Microsoft.VCLibs\\14.0\\References\\CommonConfiguration\\neutral;%LIBPATH%
 
-@if not "%WindowsSDK_ExecutablePath_arm64%" == "" @set PATH=%WindowsSDK_ExecutablePath_arm64%;%PATH%
+@if not "%WindowsSDK_ExecutablePath_x64%" == "" @set PATH=%WindowsSDK_ExecutablePath_x64%;%PATH%
 
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64};%LIB%
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64};%LIB%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\INCLUDE" set INCLUDE=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\INCLUDE;%INCLUDE%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\INCLUDE" set INCLUDE=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\INCLUDE;%INCLUDE%
 
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store;%LIB%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM};%LIB%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM};%LIB%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM};%LIB%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM}" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM};%LIB%
+)
 
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM64};%LIBPATH%
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64};%LIBPATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store" set LIB=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store;%LIB%
 
-@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM64}\\store\\references;%LIBPATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\{TARGETARM};%LIBPATH%
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM};%LIBPATH%
+if %VSSPECTRELIBS% == true (
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\ATLMFC\\LIB\\SPECTRE\\{TARGETARM};%LIBPATH%
+  @if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM}" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\SPECTRE\\{TARGETARM};%LIBPATH%
+)
+
+@if exist "%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store" set LIBPATH=%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store;%VCINSTALLDIR%\\Tools\\MSVC\\{msvcv}\\LIB\\{TARGETARM}\\store\\references;%LIBPATH%
 """
 
 (OUTPUT / "set_vars32.bat").write_text(SET_VARS32)

@@ -21,4 +21,5 @@ type Flags struct {
 	TARGETARM             string
 	TARGETARM64           string
 	REWRITE_VARS          bool
+	MSIEXEC_VERBOSE       bool
 }

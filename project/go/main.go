@@ -29,6 +29,7 @@ var defaults = aflag.Flags{
 	TARGETARM:             "arm",
 	TARGETARM64:           "arm64",
 	REWRITE_VARS:          false,
+	MSIEXEC_VERBOSE:       false,
 }
 
 func main() {
@@ -49,6 +50,7 @@ func main() {
 	flag.StringVar(&f.MANIFEST_URL, "manifest-url", defaults.MANIFEST_URL, "Specify VS manifest url")
 	flag.StringVar(&f.MANIFEST_PREVIEW_URL, "manifest-preview-url", defaults.MANIFEST_PREVIEW_URL, "Specify VS preview manifest url")
 	flag.BoolVar(&f.REWRITE_VARS, "rewrite-vars", defaults.REWRITE_VARS, "Rewrite environment variable batch scripts")
+	flag.BoolVar(&f.MSIEXEC_VERBOSE, "msiexec-verbose", defaults.MSIEXEC_VERBOSE, "Verbose output for rust-msiexec")
 	flag.Parse()
 
 	msvcPackages := aflag.Msvcpackages(&f)

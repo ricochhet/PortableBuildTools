@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	aflag "github.com/ricochhet/sdkstandalone/flag"
-	"github.com/ricochhet/sdkstandalone/process"
 	acopy "github.com/ricochhet/sdkstandalone/thirdparty/copy"
 	"github.com/tidwall/gjson"
 )
@@ -25,7 +24,7 @@ func Getcrtd(payloads []string, dstX64, dstX86, dstARM, dstARM64 string, f *afla
 			}
 		}
 	}
-	err := process.Exec("./rust-msiexec.exe", filepath.Join(f.DOWNLOADS, "vc_RuntimeDebug.msi"), f.DOWNLOADS)
+	err := Rustmsiexec(f, "./rust-msiexec.exe", filepath.Join(f.DOWNLOADS, "vc_RuntimeDebug.msi"), f.DOWNLOADS)
 	if err != nil {
 		return err
 	}

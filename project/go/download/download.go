@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	aflag "github.com/ricochhet/sdkstandalone/flag"
+	"github.com/ricochhet/sdkstandalone/process"
 )
 
 var vctipExe = "vctip.exe"
@@ -174,4 +175,13 @@ func Downloadprogress(url, check, name, apath, aname string) ([]byte, error) {
 		return nil, fmt.Errorf("hash mismatch for %s", name)
 	}
 	return data, nil
+}
+
+func Rustmsiexec(f *aflag.Flags, args ...string) error {
+	if f.MSIEXEC_VERBOSE {
+		args = append(args, "-s")
+		return process.Exec("./rust-msiexec.exe", args...)
+	}
+
+	return process.Exec("./rust-msiexec.exe", args...)
 }

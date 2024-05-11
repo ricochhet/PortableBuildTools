@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	aflag "github.com/ricochhet/sdkstandalone/flag"
-	"github.com/ricochhet/sdkstandalone/process"
 	"github.com/tidwall/gjson"
 )
 
@@ -76,7 +75,7 @@ func Getwinsdk(f *aflag.Flags, packages []gjson.Result, sdkPackages []string) er
 	}
 
 	for _, installer := range installers {
-		err := process.Exec("./rust-msiexec.exe", installer, f.OUTPUT)
+		err := Rustmsiexec(f, "./rust-msiexec.exe", installer, f.OUTPUT)
 		if err != nil {
 			return err
 		}

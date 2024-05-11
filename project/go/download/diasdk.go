@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	aflag "github.com/ricochhet/sdkstandalone/flag"
-	"github.com/ricochhet/sdkstandalone/process"
 	acopy "github.com/ricochhet/sdkstandalone/thirdparty/copy"
 	"github.com/tidwall/gjson"
 )
@@ -26,7 +25,7 @@ func Getdiasdk(payloads []string, dstX64, dstX86, dstARM, dstARM64 string, f *af
 			}
 		}
 	}
-	err := process.Exec("./rust-msiexec.exe", filepath.Join(f.DOWNLOADS_DIA, "VC_diasdk.msi"), f.DOWNLOADS_DIA)
+	err := Rustmsiexec(f, "./rust-msiexec.exe", filepath.Join(f.DOWNLOADS_DIA, "VC_diasdk.msi"), f.DOWNLOADS_DIA)
 	if err != nil {
 		return err
 	}

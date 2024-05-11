@@ -7,6 +7,7 @@ fn main() -> Result<(), String> {
     }
     let file = args.get(0).unwrap();
     let output = args.get(1).unwrap();
+    let showfile = args.get(2).map(|s| &**s).unwrap_or_default();
     let temp_dir = Path::new(file).with_extension("tmp");
     let data = fs::read(file).map_err(e("Reading MSI failed"))?;
     fs::create_dir(temp_dir.clone()).map_err(e("Temp dir already exists?"))?;
@@ -273,7 +274,9 @@ fn main() -> Result<(), String> {
         let cab_file = fs::File::open(&cab).map_err(e("Failed to open cabinet"))?;
         let mut cabinet = cab::Cabinet::new(cab_file).map_err(e("Failed to read cabinet"))?;
         for (path, name) in &files {
-            //println!("{name}");
+            if showfile == "-v" {
+                println!("{name}");
+            }
             if let Ok(mut reader) = cabinet.read_file(path) {
                 fs::create_dir_all(base.join(output).join(name).parent().unwrap())
                     .map_err(e("Failed to create final directories"))?;

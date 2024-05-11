@@ -9,6 +9,8 @@ type Flags struct {
 	DOWNLOADS_CRTD        string
 	DOWNLOADS_DIA         string
 	HOST                  string // or x86
+	SET_MSVC_PACKAGES     string
+	SET_WINSDK_PACKAGES   string
 	DOWNLOAD_SPECTRE_LIBS bool
 	DOWNLOAD_ARM_TARGETS  bool
 	DOWNLOAD_LLVM_CLANG   bool

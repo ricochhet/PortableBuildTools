@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"os"
 	"path/filepath"
 
 	"github.com/ricochhet/sdkstandalone/download"
@@ -17,6 +18,8 @@ var defaults = aflag.Flags{
 	DOWNLOADS_CRTD:        "build/downloads/crtd",
 	DOWNLOADS_DIA:         "build/downloads/dia",
 	HOST:                  "x64",
+	SET_MSVC_PACKAGES:     "",
+	SET_WINSDK_PACKAGES:   "",
 	DOWNLOAD_SPECTRE_LIBS: false,
 	DOWNLOAD_ARM_TARGETS:  false,
 	DOWNLOAD_LLVM_CLANG:   false,
@@ -42,6 +45,8 @@ func main() {
 	flag.StringVar(&f.DOWNLOADS_CRTD, "downloads-crtd", defaults.DOWNLOADS_CRTD, "Specify temporary download files folder for CRTD")
 	flag.StringVar(&f.DOWNLOADS_DIA, "downloads-dia", defaults.DOWNLOADS_DIA, "Specify temporary download files folder for DIA SDK")
 	flag.StringVar(&f.HOST, "host", defaults.HOST, "Specify host architecture (x64 or x86)")
+	flag.StringVar(&f.SET_MSVC_PACKAGES, "msvc-packages", defaults.SET_MSVC_PACKAGES, "Specify a list file of MSVC packages to download")
+	flag.StringVar(&f.SET_WINSDK_PACKAGES, "sdk-packages", defaults.SET_WINSDK_PACKAGES, "Specify a list file of Windows SDK packages to download")
 	flag.BoolVar(&f.DOWNLOAD_SPECTRE_LIBS, "download-spectre-libs", defaults.DOWNLOAD_SPECTRE_LIBS, "Download Spectre libraries")
 	flag.BoolVar(&f.DOWNLOAD_ARM_TARGETS, "download-arm-targets", defaults.DOWNLOAD_ARM_TARGETS, "Download ARM targets")
 	flag.BoolVar(&f.DOWNLOAD_LLVM_CLANG, "download-llvm-clang", defaults.DOWNLOAD_LLVM_CLANG, "Download LLVM Clang")
@@ -53,8 +58,51 @@ func main() {
 	flag.BoolVar(&f.MSIEXEC_VERBOSE, "msiexec-verbose", defaults.MSIEXEC_VERBOSE, "Verbose output for rust-msiexec")
 	flag.Parse()
 
-	msvcPackages := aflag.Msvcpackages(&f)
-	sdkPackages := aflag.Sdkpackages(&f)
+	msvcPackages := []string{}
+	sdkPackages := []string{}
+
+	if f.SET_MSVC_PACKAGES != "" {
+		exists, err := aflag.IsFile(f.SET_MSVC_PACKAGES)
+		if err != nil {
+			panic(err)
+		}
+
+		if exists {
+			o, err := os.OpenFile(f.SET_MSVC_PACKAGES, os.O_RDONLY, 0600)
+			if err != nil {
+				panic(err)
+			}
+			l, err := aflag.Scanner(o)
+			if err != nil {
+				panic(err)
+			}
+			msvcPackages = aflag.Parse(l, &f)
+		}
+	} else {
+		msvcPackages = aflag.Msvcpackages(&f)
+	}
+
+	if f.SET_WINSDK_PACKAGES != "" {
+		exists, err := aflag.IsFile(f.SET_WINSDK_PACKAGES)
+		if err != nil {
+			panic(err)
+		}
+
+		if exists {
+			o, err := os.OpenFile(f.SET_WINSDK_PACKAGES, os.O_RDONLY, 0600)
+			if err != nil {
+				panic(err)
+			}
+			l, err := aflag.Scanner(o)
+			if err != nil {
+				panic(err)
+			}
+			msvcPackages = aflag.Parse(l, &f)
+		}
+	} else {
+		sdkPackages = aflag.Sdkpackages(&f)
+	}
+
 	wd, err := download.Createdirectories(&f)
 	if err != nil {
 		panic(err)

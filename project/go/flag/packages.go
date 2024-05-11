@@ -3,8 +3,8 @@ package flag
 import "fmt"
 
 func Maybeappend(msvcPackages, sdkPackages []string, f *Flags) ([]string, []string) {
-	msvcAppend := []string{}
-	sdkAppend := []string{}
+	msvcAppend := msvcPackages
+	sdkAppend := sdkPackages
 	if f.DOWNLOAD_LLVM_CLANG {
 		msvcAppend = append(msvcAppend, Llvmclangpackages(f)...)
 	}

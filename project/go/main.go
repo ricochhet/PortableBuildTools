@@ -35,7 +35,7 @@ var defaults = aflag.Flags{
 func main() {
 	f := defaults
 	flag.StringVar(&f.MSVC_VERSION, "msvc", defaults.MSVC_VERSION, "Specify MSVC version")
-	flag.StringVar(&f.MSVC_VERSION_LOCAL, "msvcv", defaults.MSVC_VERSION_LOCAL, "Specificy secondary MSVC version")
+	flag.StringVar(&f.MSVC_VERSION_LOCAL, "msvcv", defaults.MSVC_VERSION_LOCAL, "Specify secondary MSVC version")
 	flag.StringVar(&f.SDK_PID, "sdkv", defaults.SDK_PID, "Specify Windows SDK identifier")
 	flag.StringVar(&f.OUTPUT, "output", defaults.OUTPUT, "Specify output folder")
 	flag.StringVar(&f.DOWNLOADS, "downloads", defaults.DOWNLOADS, "Specify temporary download files folder")

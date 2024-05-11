@@ -186,6 +186,10 @@ if sdk_ver in sdk:
 else:
   exit(f"Unknown Windows SDK version: f{args.sdk_version}")
 
+print(msvc_ver)
+print(sdk_ver)
+print(sdk_pid)
+
 print(f"Downloading MSVC v{msvc_ver} and Windows SDK v{sdk_ver}")
 
 

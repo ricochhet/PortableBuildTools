@@ -10,22 +10,22 @@ import (
 	"strings"
 )
 
-func Extractpackage(apath, aoutput string) {
-	if !strings.HasSuffix(apath, ".vsix") {
-		fmt.Println("File is not a zip file.")
+func Extractpackage(fpath, destpath string) {
+	if !strings.HasSuffix(fpath, ".vsix") {
+		fmt.Println("File is not a vsix file.")
 		return
 	}
 
-	zr, err := zip.OpenReader(apath)
+	zr, err := zip.OpenReader(fpath)
 	if err != nil {
-		fmt.Println("Error opening zip file:", err)
+		fmt.Println("Error opening vsix file:", err)
 		return
 	}
 
 	for _, f := range zr.File {
 		rc, err := f.Open()
 		if err != nil {
-			fmt.Println("Error opening zip file for extraction:", err)
+			fmt.Println("Error opening vsix file for extraction:", err)
 			continue
 		}
 		defer rc.Close()
@@ -33,22 +33,17 @@ func Extractpackage(apath, aoutput string) {
 			continue
 		}
 
-		name, found := strings.CutPrefix(f.Name, "Contents/")
-		if !found {
-			break
-		}
-
-		decodedName, err := url.QueryUnescape(name)
+		name, err := url.QueryUnescape(strings.TrimPrefix(f.Name, "Contents/"))
 		if err != nil {
 			fmt.Println("Error decoding name:", err)
 			return
 		}
-		destPath := filepath.Join(aoutput, decodedName)
+		dest := filepath.Join(destpath, name)
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(destPath, os.ModePerm)
+			os.MkdirAll(dest, os.ModePerm)
 		} else {
-			os.MkdirAll(filepath.Dir(destPath), os.ModePerm)
-			w, err := os.Create(destPath)
+			os.MkdirAll(filepath.Dir(dest), os.ModePerm)
+			w, err := os.Create(dest)
 			if err != nil {
 				fmt.Println("Error creating destination file:", err)
 				continue

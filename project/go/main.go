@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"os"
 	"path/filepath"
 
 	"github.com/ricochhet/sdkstandalone/download"
@@ -75,24 +74,19 @@ func main() {
 	}
 
 	if f.REWRITE_VARS {
-		sdkv, err := download.Getwinsdkversion(&f)
+		err := download.Writevars(&f)
 		if err != nil {
 			panic(err)
 		}
-
-		os.WriteFile(filepath.Join(f.OUTPUT, "set_vars64.bat"), []byte(aflag.SetX64(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETX64, f.TARGETX86, f.HOST)), 0644)
-		os.WriteFile(filepath.Join(f.OUTPUT, "set_vars32.bat"), []byte(aflag.SetX86(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETX86, f.TARGETX64, f.HOST)), 0644)
-		os.WriteFile(filepath.Join(f.OUTPUT, "set_vars_arm64.bat"), []byte(aflag.SetX64(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETARM64, f.TARGETARM, f.HOST)), 0644)
-		os.WriteFile(filepath.Join(f.OUTPUT, "set_vars_arm32.bat"), []byte(aflag.SetX86(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETARM, f.TARGETARM64, f.HOST)), 0644)
 		return
 	}
 
-	vsmanifest, err := download.Getmanifest(&f)
+	vsmanifestjson, err := download.Getmanifest(&f)
 	if err != nil {
 		panic(err)
 	}
 
-	payloads, crtd, dia, sdk := download.Getpackages(&f, vsmanifest, msvcPackages)
+	payloads, crtd, dia, sdk := download.Getpackages(&f, vsmanifestjson, msvcPackages)
 	download.Getpayloads(&f, payloads)
 	err = download.Getwinsdk(&f, sdk, sdkPackages)
 	if err != nil {
@@ -123,13 +117,8 @@ func main() {
 		panic(err)
 	}
 
-	sdkv, err := download.Getwinsdkversion(&f)
+	err = download.Writevars(&f)
 	if err != nil {
 		panic(err)
 	}
-
-	os.WriteFile(filepath.Join(f.OUTPUT, "set_vars64.bat"), []byte(aflag.SetX64(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETX64, f.TARGETX86, f.HOST)), 0644)
-	os.WriteFile(filepath.Join(f.OUTPUT, "set_vars32.bat"), []byte(aflag.SetX86(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETX86, f.TARGETX64, f.HOST)), 0644)
-	os.WriteFile(filepath.Join(f.OUTPUT, "set_vars_arm64.bat"), []byte(aflag.SetX64(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETARM64, f.TARGETARM, f.HOST)), 0644)
-	os.WriteFile(filepath.Join(f.OUTPUT, "set_vars_arm32.bat"), []byte(aflag.SetX86(f.MSVC_VERSION_LOCAL, sdkv, f.TARGETARM, f.TARGETARM64, f.HOST)), 0644)
 }

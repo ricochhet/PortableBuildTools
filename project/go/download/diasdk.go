@@ -1,6 +1,7 @@
 package download
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -10,10 +11,12 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func Getdiasdk(dia []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Flags) error {
-	for _, item := range dia {
-		pkgs := gjson.Parse(item).Array()
-		for _, pkg := range pkgs {
+var msdia140dll = "msdia140.dll"
+
+func Getdiasdk(payloads []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Flags) error {
+	for _, payload := range payloads {
+		packages := gjson.Parse(payload).Array()
+		for _, pkg := range packages {
 			url := gjson.Get(pkg.String(), "url").String()
 			sha256 := gjson.Get(pkg.String(), "sha256").String()
 			fileName := gjson.Get(pkg.String(), "fileName").String()
@@ -25,40 +28,39 @@ func Getdiasdk(dia []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.F
 	}
 	err := process.Exec("./rust-msiexec.exe", filepath.Join(f.DOWNLOADS_DIA, "VC_diasdk.msi"), f.DOWNLOADS_DIA)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	var msdia string
+	msdia := ""
 	if f.HOST == f.TARGETX64 {
-		msdia = "msdia140.dll"
+		msdia = msdia140dll
 	} else if f.HOST == f.TARGETX86 {
-		msdia = "amd64/msdia140.dll"
+		msdia = "amd64/" + msdia140dll
 	} else {
-		return fmt.Errorf("unknown host architecture")
+		return errors.New("unknown host architecture")
 	}
 
-	diaTargetX64 := filepath.Join(dstX64, "msdia140.dll")
-	diaTargetX86 := filepath.Join(dstX86, "msdia140.dll")
-	diaTargetARM := filepath.Join(dstARM, "msdia140.dll")
-	diaTargetARM64 := filepath.Join(dstARM64, "msdia140.dll")
-
-	err = acopy.Copy(filepath.Join(f.DOWNLOADS_DIA, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), diaTargetX64)
+	err = copymsdiadll(msdia, filepath.Join(dstX64, msdia140dll), f)
 	if err != nil {
 		return err
 	}
-	err = acopy.Copy(filepath.Join(f.DOWNLOADS_DIA, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), diaTargetX86)
+	err = copymsdiadll(msdia, filepath.Join(dstX86, msdia140dll), f)
 	if err != nil {
 		return err
 	}
 	if f.DOWNLOAD_ARM_TARGETS {
-		err = acopy.Copy(filepath.Join(f.DOWNLOADS_DIA, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), diaTargetARM)
+		err = copymsdiadll(msdia, filepath.Join(dstARM, msdia140dll), f)
 		if err != nil {
 			return err
 		}
-		err = acopy.Copy(filepath.Join(f.DOWNLOADS_DIA, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), diaTargetARM64)
+		err = copymsdiadll(msdia, filepath.Join(dstARM64, msdia140dll), f)
 		if err != nil {
 			return err
 		}
 	}
 
 	return err
+}
+
+func copymsdiadll(msdia, target string, f *aflag.Flags) error {
+	return acopy.Copy(filepath.Join(f.DOWNLOADS_DIA, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), target)
 }

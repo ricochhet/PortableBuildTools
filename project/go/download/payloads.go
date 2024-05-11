@@ -10,9 +10,9 @@ import (
 )
 
 func Getpayloads(f *aflag.Flags, payloads []string) {
-	for _, item := range payloads {
-		pkgs := gjson.Parse(item).Array()
-		for _, pkg := range pkgs {
+	for _, payload := range payloads {
+		packages := gjson.Parse(payload).Array()
+		for _, pkg := range packages {
 			url := gjson.Get(pkg.String(), "url").String()
 			sha256 := gjson.Get(pkg.String(), "sha256").String()
 			fileName := gjson.Get(pkg.String(), "fileName").String()

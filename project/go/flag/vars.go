@@ -8,7 +8,7 @@ func lines(lines ...string) string {
 	return strings.Join(lines, "\n")
 }
 
-func SetX64(msvcVersion, sdkVersion, targetA, targetB, host string) string {
+func NewX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	return lines(
 		`@echo off`,
 		"",
@@ -66,7 +66,7 @@ func SetX64(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	)
 }
 
-func SetX86(msvcVersion, sdkVersion, targetA, targetB, host string) string {
+func NewX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	return lines(
 		`@echo off`,
 		"",

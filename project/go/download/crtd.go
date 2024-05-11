@@ -2,6 +2,7 @@ package download
 
 import (
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -11,10 +12,10 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func Getcrtd(crtd []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Flags) error {
-	for _, item := range crtd {
-		pkgs := gjson.Parse(item).Array()
-		for _, pkg := range pkgs {
+func Getcrtd(payloads []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Flags) error {
+	for _, payload := range payloads {
+		packages := gjson.Parse(payload).Array()
+		for _, pkg := range packages {
 			url := gjson.Get(pkg.String(), "url").String()
 			sha256 := gjson.Get(pkg.String(), "sha256").String()
 			fileName := gjson.Get(pkg.String(), "fileName").String()
@@ -28,28 +29,28 @@ func Getcrtd(crtd []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Fl
 	if err != nil {
 		return err
 	}
-	crtdGlob, err := os.ReadDir(filepath.Join(f.DOWNLOADS, "System64"))
+	dlls, err := os.ReadDir(filepath.Join(f.DOWNLOADS, "System64"))
 	if err != nil {
 		return err
 	}
-	for _, item := range crtdGlob {
-		err := acopy.Copy(filepath.Join(filepath.Join(f.DOWNLOADS, "System64"), item.Name()), filepath.Join(dstX64, item.Name()))
+	for _, dll := range dlls {
+		err := copycrtd(dll, dstX64, f)
 		if err != nil {
 			return err
 		}
 
-		err = acopy.Copy(filepath.Join(filepath.Join(f.DOWNLOADS, "System64"), item.Name()), filepath.Join(dstX86, item.Name()))
+		err = copycrtd(dll, dstX86, f)
 		if err != nil {
 			return err
 		}
 
 		if f.DOWNLOAD_ARM_TARGETS {
-			err := acopy.Copy(filepath.Join(filepath.Join(f.DOWNLOADS, "System64"), item.Name()), filepath.Join(dstARM, item.Name()))
+			err := copycrtd(dll, dstARM, f)
 			if err != nil {
 				return err
 			}
 
-			err = acopy.Copy(filepath.Join(filepath.Join(f.DOWNLOADS, "System64"), item.Name()), filepath.Join(dstARM64, item.Name()))
+			err = copycrtd(dll, dstARM64, f)
 			if err != nil {
 				return err
 			}
@@ -57,4 +58,8 @@ func Getcrtd(crtd []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Fl
 	}
 
 	return nil
+}
+
+func copycrtd(dirEntry fs.DirEntry, target string, f *aflag.Flags) error {
+	return acopy.Copy(filepath.Join(filepath.Join(f.DOWNLOADS, "System64"), dirEntry.Name()), filepath.Join(target, dirEntry.Name()))
 }

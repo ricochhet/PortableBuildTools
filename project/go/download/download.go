@@ -3,6 +3,7 @@ package download
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 
 	aflag "github.com/ricochhet/sdkstandalone/flag"
 )
+
+var vstipExe = "vctip.exe"
 
 func Createdirectories(f *aflag.Flags) (string, error) {
 	err := os.MkdirAll(f.DOWNLOADS, 0700)
@@ -40,10 +43,10 @@ func Createdirectories(f *aflag.Flags) (string, error) {
 }
 
 func Removetelemetry(f *aflag.Flags) error {
-	vctipX64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX64, "vctip.exe")
-	vctipX86 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX86, "vctip.exe")
-	vctipARM := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM, "vctip.exe")
-	vctipARM64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM64, "vctip.exe")
+	vctipX64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX64, vstipExe)
+	vctipX86 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX86, vstipExe)
+	vctipARM := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM, vstipExe)
+	vctipARM64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM64, vstipExe)
 
 	err := os.Remove(vctipX64)
 	if err != nil {
@@ -85,6 +88,10 @@ func Cleanhost(f *aflag.Flags) error {
 }
 
 func Download(url string) ([]byte, error) {
+	if url == "" {
+		return nil, errors.New("url is empty")
+	}
+
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -100,6 +107,16 @@ func Download(url string) ([]byte, error) {
 }
 
 func Downloadprogress(url, check, name, apath, aname string) ([]byte, error) {
+	if url == "" {
+		return nil, errors.New("url is empty")
+	}
+	if apath == "" {
+		return nil, errors.New("path is empty")
+	}
+	if name == "" || aname == "" {
+		return nil, errors.New("name is empty")
+	}
+
 	fmt.Printf("%s ... DOWNLOADING\n", name)
 	fpath := filepath.Join(apath, aname)
 	err := os.MkdirAll(filepath.Dir(fpath), 0700)
@@ -152,8 +169,8 @@ func Downloadprogress(url, check, name, apath, aname string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	hashSum := hex.EncodeToString(hash.Sum(nil))
-	if strings.ToLower(check) != hashSum {
+	hashsum := hex.EncodeToString(hash.Sum(nil))
+	if strings.ToLower(check) != hashsum {
 		return nil, fmt.Errorf("hash mismatch for %s", name)
 	}
 	return data, nil

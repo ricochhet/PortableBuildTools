@@ -8,30 +8,30 @@ import (
 )
 
 func Getmanifest(f *aflag.Flags) (string, error) {
-	var manifest string
-	if dl, err := Download(f.MANIFEST_URL); err == nil {
-		manifest = string(dl)
+	manifest := ""
+	if b, err := Download(f.MANIFEST_URL); err == nil {
+		manifest = string(b)
 	} else {
 		fmt.Println("Error downloading main manifest:", err)
 		return "", err
 	}
 
-	channel := gjson.Get(manifest, "channelItems").Array()
-	var vs string
-	for _, item := range channel {
+	channelItems := gjson.Get(manifest, "channelItems").Array()
+	vschannelmanifest := ""
+	for _, item := range channelItems {
 		if gjson.Get(item.String(), "id").Str == "Microsoft.VisualStudio.Manifests.VisualStudio" {
-			vs = item.String()
+			vschannelmanifest = item.String()
 			break
 		}
 	}
 
-	var vsmanifest string
-	payload := gjson.Get(vs, "payloads").Array()[0].String()
-	if dl, err := Download(gjson.Get(payload, "url").String()); err == nil {
-		vsmanifest = string(dl)
+	vsmanifestjson := ""
+	payload := gjson.Get(vschannelmanifest, "payloads").Array()[0].String()
+	if b, err := Download(gjson.Get(payload, "url").String()); err == nil {
+		vsmanifestjson = string(b)
 	} else {
 		return "", err
 	}
 
-	return vsmanifest, nil
+	return vsmanifestjson, nil
 }

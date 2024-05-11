@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"os"
 	"path/filepath"
 
 	"github.com/ricochhet/sdkstandalone/download"
@@ -58,50 +57,8 @@ func main() {
 	flag.BoolVar(&f.MSIEXEC_VERBOSE, "msiexec-verbose", defaults.MSIEXEC_VERBOSE, "Verbose output for rust-msiexec")
 	flag.Parse()
 
-	msvcPackages := []string{}
-	sdkPackages := []string{}
-
-	if f.SET_MSVC_PACKAGES != "" {
-		exists, err := aflag.IsFile(f.SET_MSVC_PACKAGES)
-		if err != nil {
-			panic(err)
-		}
-
-		if exists {
-			o, err := os.OpenFile(f.SET_MSVC_PACKAGES, os.O_RDONLY, 0600)
-			if err != nil {
-				panic(err)
-			}
-			l, err := aflag.Scanner(o)
-			if err != nil {
-				panic(err)
-			}
-			msvcPackages = aflag.Parse(l, &f)
-		}
-	} else {
-		msvcPackages = aflag.Msvcpackages(&f)
-	}
-
-	if f.SET_WINSDK_PACKAGES != "" {
-		exists, err := aflag.IsFile(f.SET_WINSDK_PACKAGES)
-		if err != nil {
-			panic(err)
-		}
-
-		if exists {
-			o, err := os.OpenFile(f.SET_WINSDK_PACKAGES, os.O_RDONLY, 0600)
-			if err != nil {
-				panic(err)
-			}
-			l, err := aflag.Scanner(o)
-			if err != nil {
-				panic(err)
-			}
-			msvcPackages = aflag.Parse(l, &f)
-		}
-	} else {
-		sdkPackages = aflag.Sdkpackages(&f)
-	}
+	msvcPackages := aflag.Setpackages(&f, f.SET_MSVC_PACKAGES, aflag.Msvcpackages(&f))
+	sdkPackages := aflag.Setpackages(&f, f.SET_WINSDK_PACKAGES, aflag.Sdkpackages(&f))
 
 	wd, err := download.Createdirectories(&f)
 	if err != nil {

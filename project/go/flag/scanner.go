@@ -6,6 +6,32 @@ import (
 	"strings"
 )
 
+func Setpackages(f *Flags, apath string, defaults []string) []string {
+	packages := []string{}
+	if apath != "" {
+		exists, err := IsFile(apath)
+		if err != nil {
+			panic(err)
+		}
+
+		if exists {
+			o, err := os.OpenFile(apath, os.O_RDONLY, 0600)
+			if err != nil {
+				panic(err)
+			}
+			l, err := Scanner(o)
+			if err != nil {
+				panic(err)
+			}
+			packages = Parse(l, f)
+		}
+	} else {
+		packages = defaults
+	}
+
+	return packages
+}
+
 func Parse(list []string, f *Flags) []string {
 	replacements := map[string]string{
 		"{HOST}":               f.HOST,

@@ -9,47 +9,42 @@ import (
 	aflag "github.com/ricochhet/sdkstandalone/flag"
 )
 
+var defaults = aflag.Flags{
+	MSVC_VERSION:          "14.39.17.9",
+	MSVC_VERSION_LOCAL:    "14.39.33519",
+	SDK_PID:               "Win11SDK_10.0.22621",
+	OUTPUT:                "build/sdk_standalone",
+	DOWNLOADS:             "build/downloads",
+	DOWNLOADS_CRTD:        "build/downloads/crtd",
+	DOWNLOADS_DIA:         "build/downloads/dia",
+	HOST:                  "x64",
+	DOWNLOAD_SPECTRE_LIBS: false,
+	DOWNLOAD_ARM_TARGETS:  false,
+	MANIFEST_URL:          "https://aka.ms/vs/17/release/channel",
+	MANIFEST_PREVIEW_URL:  "https://aka.ms/vs/17/pre/channel",
+	TARGETX64:             "x64",
+	TARGETX86:             "x86",
+	TARGETARM:             "arm",
+	TARGETARM64:           "arm64",
+	REWRITE_VARS:          false,
+}
+
 func main() {
-	f := aflag.Flags{
-		MSVC_VERSION:          "14.39.17.9",
-		MSVC_VERSION_LOCAL:    "14.39.33519",
-		SDK_PID:               "Win11SDK_10.0.22621",
-		OUTPUT:                "build/sdk_standalone",
-		DOWNLOADS:             "build/downloads",
-		DOWNLOADS_CRTD:        "build/downloads/crtd",
-		DOWNLOADS_DIA:         "build/downloads/dia",
-		HOST:                  "x64",
-		DOWNLOAD_SPECTRE_LIBS: false,
-		DOWNLOAD_ARM_TARGETS:  false,
-		MANIFEST_URL:          "https://aka.ms/vs/17/release/channel",
-		MANIFEST_PREVIEW_URL:  "https://aka.ms/vs/17/pre/channel",
-		TARGETX64:             "x64",
-		TARGETX86:             "x86",
-		TARGETARM:             "arm",
-		TARGETARM64:           "arm64",
-		REWRITE_VARS:          false,
-	}
-
-	msvcVersion := flag.String("msvc", f.MSVC_VERSION, "Specify MSVC version")
-	msvcVersionLocal := flag.String("msvcv", f.MSVC_VERSION_LOCAL, "Specificy secondary MSVC version")
-	sdkPid := flag.String("sdkv", f.SDK_PID, "Specify Windows SDK identifier")
-	host := flag.String("host", f.HOST, "Specify host architecture (x64 or x86)")
-	downloadSpectreLibs := flag.Bool("download-spectre-libs", f.DOWNLOAD_SPECTRE_LIBS, "Download Spectre libraries")
-	downloadArmTargets := flag.Bool("download-arm-targets", f.DOWNLOAD_ARM_TARGETS, "Download ARM targets")
-	output := flag.String("output", f.OUTPUT, "Specify output folder")
-	downloads := flag.String("downloads", f.DOWNLOADS, "Specify temporary download files folder")
-	rewriteVars := flag.Bool("rewrite-vars", f.REWRITE_VARS, "Rewrite environment variable batch scripts")
+	f := defaults
+	flag.StringVar(&f.MSVC_VERSION, "msvc", defaults.MSVC_VERSION, "Specify MSVC version")
+	flag.StringVar(&f.MSVC_VERSION_LOCAL, "msvcv", defaults.MSVC_VERSION_LOCAL, "Specificy secondary MSVC version")
+	flag.StringVar(&f.SDK_PID, "sdkv", defaults.SDK_PID, "Specify Windows SDK identifier")
+	flag.StringVar(&f.OUTPUT, "output", defaults.OUTPUT, "Specify output folder")
+	flag.StringVar(&f.DOWNLOADS, "downloads", defaults.DOWNLOADS, "Specify temporary download files folder")
+	flag.StringVar(&f.DOWNLOADS_CRTD, "downloads-crtd", defaults.DOWNLOADS_CRTD, "Specify temporary download files folder for CRTD")
+	flag.StringVar(&f.DOWNLOADS_DIA, "downloads-dia", defaults.DOWNLOADS_DIA, "Specify temporary download files folder for DIA SDK")
+	flag.StringVar(&f.HOST, "host", defaults.HOST, "Specify host architecture (x64 or x86)")
+	flag.BoolVar(&f.DOWNLOAD_SPECTRE_LIBS, "download-spectre-libs", defaults.DOWNLOAD_SPECTRE_LIBS, "Download Spectre libraries")
+	flag.BoolVar(&f.DOWNLOAD_ARM_TARGETS, "download-arm-targets", defaults.DOWNLOAD_ARM_TARGETS, "Download ARM targets")
+	flag.StringVar(&f.MANIFEST_URL, "manifest-url", defaults.MANIFEST_URL, "Specify VS manifest url")
+	flag.StringVar(&f.MANIFEST_PREVIEW_URL, "manifest-preview-url", defaults.MANIFEST_PREVIEW_URL, "Specify VS preview manifest url")
+	flag.BoolVar(&f.REWRITE_VARS, "rewrite-vars", defaults.REWRITE_VARS, "Rewrite environment variable batch scripts")
 	flag.Parse()
-
-	f.MSVC_VERSION = *msvcVersion
-	f.MSVC_VERSION_LOCAL = *msvcVersionLocal
-	f.SDK_PID = *sdkPid
-	f.HOST = *host
-	f.DOWNLOAD_SPECTRE_LIBS = *downloadSpectreLibs
-	f.DOWNLOAD_ARM_TARGETS = *downloadArmTargets
-	f.OUTPUT = *output
-	f.DOWNLOADS = *downloads
-	f.REWRITE_VARS = *rewriteVars
 
 	msvcPackages := aflag.Msvcpackages(&f)
 	msvcARMPackages := aflag.Msvcarmpackages(&f)

@@ -19,6 +19,9 @@ var defaults = aflag.Flags{
 	HOST:                  "x64",
 	DOWNLOAD_SPECTRE_LIBS: false,
 	DOWNLOAD_ARM_TARGETS:  false,
+	DOWNLOAD_LLVM_CLANG:   false,
+	DOWNLOAD_UNITTEST:     false,
+	DOWNLOAD_CMAKE:        false,
 	MANIFEST_URL:          "https://aka.ms/vs/17/release/channel",
 	MANIFEST_PREVIEW_URL:  "https://aka.ms/vs/17/pre/channel",
 	TARGETX64:             "x64",
@@ -40,18 +43,16 @@ func main() {
 	flag.StringVar(&f.HOST, "host", defaults.HOST, "Specify host architecture (x64 or x86)")
 	flag.BoolVar(&f.DOWNLOAD_SPECTRE_LIBS, "download-spectre-libs", defaults.DOWNLOAD_SPECTRE_LIBS, "Download Spectre libraries")
 	flag.BoolVar(&f.DOWNLOAD_ARM_TARGETS, "download-arm-targets", defaults.DOWNLOAD_ARM_TARGETS, "Download ARM targets")
+	flag.BoolVar(&f.DOWNLOAD_LLVM_CLANG, "download-llvm-clang", defaults.DOWNLOAD_LLVM_CLANG, "Download LLVM Clang")
+	flag.BoolVar(&f.DOWNLOAD_UNITTEST, "download-unittest", defaults.DOWNLOAD_UNITTEST, "Download UnitTest framework")
+	flag.BoolVar(&f.DOWNLOAD_CMAKE, "download-cmake", defaults.DOWNLOAD_CMAKE, "Download Cmake build tools")
 	flag.StringVar(&f.MANIFEST_URL, "manifest-url", defaults.MANIFEST_URL, "Specify VS manifest url")
 	flag.StringVar(&f.MANIFEST_PREVIEW_URL, "manifest-preview-url", defaults.MANIFEST_PREVIEW_URL, "Specify VS preview manifest url")
 	flag.BoolVar(&f.REWRITE_VARS, "rewrite-vars", defaults.REWRITE_VARS, "Rewrite environment variable batch scripts")
 	flag.Parse()
 
 	msvcPackages := aflag.Msvcpackages(&f)
-	msvcARMPackages := aflag.Msvcarmpackages(&f)
-	msvcSpectrePackages := aflag.Msvcspectrepackages(&f)
-	msvcARMSpectrePackages := aflag.Msvcarmspectrepackages(&f)
 	sdkPackages := aflag.Sdkpackages(&f)
-	sdkARMPackages := aflag.Sdkarmpackages(&f)
-
 	wd, err := download.Createdirectories(&f)
 	if err != nil {
 		panic(err)
@@ -60,18 +61,7 @@ func main() {
 	f.DOWNLOADS_CRTD = filepath.Join(wd, f.DOWNLOADS_CRTD)
 	f.DOWNLOADS_DIA = filepath.Join(wd, f.DOWNLOADS_DIA)
 	f.OUTPUT = filepath.Join(wd, f.OUTPUT)
-
-	if f.DOWNLOAD_ARM_TARGETS {
-		msvcPackages = append(msvcPackages, msvcARMPackages...)
-		sdkPackages = append(sdkPackages, sdkARMPackages...)
-	}
-
-	if f.DOWNLOAD_SPECTRE_LIBS {
-		msvcPackages = append(msvcPackages, msvcSpectrePackages...)
-		if f.DOWNLOAD_ARM_TARGETS {
-			msvcPackages = append(msvcPackages, msvcARMSpectrePackages...)
-		}
-	}
+	msvcPackages, sdkPackages = aflag.Maybeappend(msvcPackages, sdkPackages, &f)
 
 	if f.REWRITE_VARS {
 		err := download.Writevars(&f)

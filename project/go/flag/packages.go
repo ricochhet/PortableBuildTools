@@ -2,6 +2,36 @@ package flag
 
 import "fmt"
 
+func Maybeappend(msvcPackages, sdkPackages []string, f *Flags) ([]string, []string) {
+	msvcAppend := []string{}
+	sdkAppend := []string{}
+	if f.DOWNLOAD_LLVM_CLANG {
+		msvcAppend = append(msvcAppend, Llvmclangpackages(f)...)
+	}
+
+	if f.DOWNLOAD_CMAKE {
+		msvcAppend = append(msvcAppend, Cmakepackages(f)...)
+	}
+
+	if f.DOWNLOAD_UNITTEST {
+		msvcAppend = append(msvcAppend, Unittestpackages(f)...)
+	}
+
+	if f.DOWNLOAD_ARM_TARGETS {
+		msvcAppend = append(msvcAppend, Msvcarmpackages(f)...)
+		sdkAppend = append(sdkAppend, Sdkarmpackages(f)...)
+	}
+
+	if f.DOWNLOAD_SPECTRE_LIBS {
+		msvcAppend = append(msvcAppend, Msvcspectrepackages(f)...)
+		if f.DOWNLOAD_ARM_TARGETS {
+			msvcAppend = append(msvcAppend, Msvcarmspectrepackages(f)...)
+		}
+	}
+
+	return msvcAppend, sdkAppend
+}
+
 func Msvcpackages(f *Flags) []string {
 	return []string{
 		// MSVC vcvars
@@ -115,5 +145,24 @@ func Sdkarmpackages(f *Flags) []string {
 		fmt.Sprintf("Windows SDK Desktop Libs %s-%s_en-us.msi", f.TARGETARM, f.TARGETX86),
 		fmt.Sprintf("Windows SDK ARM Desktop Tools-%s_en-us.msi", f.TARGETX86),
 		fmt.Sprintf("Windows SDK Desktop Tools %s-%s_en-us.msi", f.TARGETARM64, f.TARGETX86),
+	}
+}
+
+func Llvmclangpackages(f *Flags) []string {
+	return []string{
+		"microsoft.visualstudio.vc.llvm.base",
+		"microsoft.visualstudio.vc.llvm.clang",
+	}
+}
+
+func Cmakepackages(f *Flags) []string {
+	return []string{
+		"microsoft.visualstudio.vc.cmake",
+	}
+}
+
+func Unittestpackages(f *Flags) []string {
+	return []string{
+		"microsoft.visualstudio.vc.unittest.desktop.build.core",
 	}
 }

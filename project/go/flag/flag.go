@@ -11,6 +11,9 @@ type Flags struct {
 	HOST                  string // or x86
 	DOWNLOAD_SPECTRE_LIBS bool
 	DOWNLOAD_ARM_TARGETS  bool
+	DOWNLOAD_LLVM_CLANG   bool
+	DOWNLOAD_UNITTEST     bool
+	DOWNLOAD_CMAKE        bool
 	MANIFEST_URL          string
 	MANIFEST_PREVIEW_URL  string
 	TARGETX64             string

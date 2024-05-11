@@ -8,7 +8,7 @@ func lines(lines ...string) string {
 	return strings.Join(lines, "\n")
 }
 
-func NewX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
+func NewMsvcX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	return lines(
 		`@echo off`,
 		"",
@@ -23,6 +23,7 @@ func NewX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 		`SET WindowsSDKLibVersion=`+sdkVersion+`\`,
 		`SET WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\10\BIN\%WindowsSDKVersion%`+targetA+`\`,
 		`SET VSSPECTRELIBS=false`,
+		`SET VSLLVMCLANG=false`,
 		"",
 		`SET LIB=`,
 		`SET INCLUDE=`,
@@ -63,10 +64,18 @@ func NewX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 		`)`,
 		"",
 		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store\references;%LIBPATH%`,
+		"",
+		`if %VSLLVMCLANG% == true (`,
+		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+` set LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA,
+		`  @if exist "%LLVM_PATH%\BIN set PATH=%LLVM_PATH%\BIN;%PATH%`,
+		`  @if exist "%LLVM_PATH%\LIB set LIB=%LLVM_PATH%\LIB;%LIB%`,
+		`  @if exist "%LLVM_PATH%\LIB set LIBPATH=%LLVM_PATH%\LIB;%LIBPATH%`,
+		`  @if exist "%LLVM_PATH%\INCLUDE set INCLUDE=%LLVM_PATH%\INCLUDE;%INCLUDE%`,
+		`)`,
 	)
 }
 
-func NewX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
+func NewMsvcX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	return lines(
 		`@echo off`,
 		"",
@@ -122,5 +131,13 @@ func NewX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 		`)`,
 		"",
 		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store\references;%LIBPATH%`,
+		"",
+		`if %VSLLVMCLANG% == true (`,
+		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+` set LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA,
+		`  @if exist "%LLVM_PATH%\BIN set PATH=%LLVM_PATH%\BIN;%PATH%`,
+		`  @if exist "%LLVM_PATH%\LIB set LIB=%LLVM_PATH%\LIB;%LIB%`,
+		`  @if exist "%LLVM_PATH%\LIB set LIBPATH=%LLVM_PATH%\LIB;%LIBPATH%`,
+		`  @if exist "%LLVM_PATH%\INCLUDE set INCLUDE=%LLVM_PATH%\INCLUDE;%INCLUDE%`,
+		`)`,
 	)
 }

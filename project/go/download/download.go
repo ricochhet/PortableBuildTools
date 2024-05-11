@@ -14,7 +14,7 @@ import (
 	aflag "github.com/ricochhet/sdkstandalone/flag"
 )
 
-var vstipExe = "vctip.exe"
+var vctipExe = "vctip.exe"
 
 func Createdirectories(f *aflag.Flags) (string, error) {
 	err := os.MkdirAll(f.DOWNLOADS, 0700)
@@ -43,10 +43,10 @@ func Createdirectories(f *aflag.Flags) (string, error) {
 }
 
 func Removetelemetry(f *aflag.Flags) error {
-	vctipX64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX64, vstipExe)
-	vctipX86 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX86, vstipExe)
-	vctipARM := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM, vstipExe)
-	vctipARM64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM64, vstipExe)
+	vctipX64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX64, vctipExe)
+	vctipX86 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX86, vctipExe)
+	vctipARM := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM, vctipExe)
+	vctipARM64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM64, vctipExe)
 
 	err := os.Remove(vctipX64)
 	if err != nil {

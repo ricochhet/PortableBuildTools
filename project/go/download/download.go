@@ -17,9 +17,10 @@ import (
 )
 
 var (
-	errURLEmpty  = errors.New("url is empty")
-	errPathEmpty = errors.New("path is empty")
-	errNameEmpty = errors.New("name is empty")
+	errURLEmpty          = errors.New("url is empty")
+	errPathEmpty         = errors.New("path is empty")
+	errNameEmpty         = errors.New("name is empty")
+	errMSIExtractMissing = errors.New("MSIExtract tool was not found")
 )
 
 func CreateDirectories(flags *aflag.Flags) (string, error) {
@@ -209,6 +210,10 @@ func hashMatch(resp *http.Response, flags *os.File, fpath, check, name string) (
 }
 
 func extractMSI(flags *aflag.Flags, args ...string) error {
+	if exists, err := aflag.IsFile("./MSIExtract.exe"); err != nil || !exists {
+		return errMSIExtractMissing
+	}
+
 	if flags.MSIExtractVerbose {
 		args = append(args, "-s")
 		return process.Exec("./MSIExtract.exe", args...)

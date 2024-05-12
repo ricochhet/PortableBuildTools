@@ -30,11 +30,11 @@ linters-settings:
                 allow:
                     - $gostd
                     - github.com/tidwall/gjson
-                    - github.com/ricochhet/sdkstandalone/flag
-                    - github.com/ricochhet/sdkstandalone/process
-                    - github.com/ricochhet/sdkstandalone/extract
-                    - github.com/ricochhet/sdkstandalone/download
-                    - github.com/ricochhet/sdkstandalone/thirdparty/copy
+                    - github.com/ricochhet/portablebuildtools/flag
+                    - github.com/ricochhet/portablebuildtools/process
+                    - github.com/ricochhet/portablebuildtools/extract
+                    - github.com/ricochhet/portablebuildtools/download
+                    - github.com/ricochhet/portablebuildtools/thirdparty/copy
 issues:
     exclude-dirs:
         - thirdparty/

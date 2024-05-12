@@ -4,7 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
-	aflag "github.com/ricochhet/sdkstandalone/flag"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
 func WriteVars(flags *aflag.Flags) error {

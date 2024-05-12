@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	aflag "github.com/ricochhet/sdkstandalone/flag"
-	"github.com/ricochhet/sdkstandalone/process"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/portablebuildtools/process"
 )
 
 var (
@@ -211,8 +211,8 @@ func hashMatch(resp *http.Response, flags *os.File, fpath, check, name string) (
 func extractMSI(flags *aflag.Flags, args ...string) error {
 	if flags.MSIExtractVerbose {
 		args = append(args, "-s")
-		return process.Exec("./rust-msiexec.exe", args...)
+		return process.Exec("./MSIExtract.exe", args...)
 	}
 
-	return process.Exec("./rust-msiexec.exe", args...)
+	return process.Exec("./MSIExtract.exe", args...)
 }

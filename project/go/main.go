@@ -3,8 +3,8 @@ package main
 import (
 	"path/filepath"
 
-	"github.com/ricochhet/sdkstandalone/download"
-	aflag "github.com/ricochhet/sdkstandalone/flag"
+	"github.com/ricochhet/portablebuildtools/download"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
 //nolint:cyclop // composed of err checking. . .not complex

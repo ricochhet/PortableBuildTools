@@ -5,5 +5,5 @@ cd ..\rust
 call build.bat
 cd ..
 
-copy go\downloader.exe build\downloader.exe
-copy rust\target\release\rust-msiexec.exe build\rust-msiexec.exe
+copy go\PortableBuildTools.exe build\PortableBuildTools.exe
+copy rust\target\release\MSIExtract.exe build\MSIExtract.exe

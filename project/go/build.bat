@@ -1,2 +1,2 @@
 SET LDFLAGS="-w -s"
-go build -o downloader.exe -trimpath -ldflags %LDFLAGS%
+go build -o PortableBuildTools.exe -trimpath -ldflags %LDFLAGS%

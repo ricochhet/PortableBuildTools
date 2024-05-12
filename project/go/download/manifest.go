@@ -3,7 +3,7 @@ package download
 import (
 	"fmt"
 
-	aflag "github.com/ricochhet/sdkstandalone/flag"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
 )
 

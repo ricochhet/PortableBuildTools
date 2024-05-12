@@ -7,7 +7,7 @@ import (
 	"slices"
 	"strings"
 
-	aflag "github.com/ricochhet/sdkstandalone/flag"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
 )
 
@@ -50,7 +50,7 @@ func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 	}
 
 	for _, installer := range installers {
-		err := extractMSI(flags, "./rust-msiexec.exe", installer, flags.Output)
+		err := extractMSI(flags, "./MSIExtract.exe", installer, flags.Output)
 		if err != nil {
 			return err
 		}

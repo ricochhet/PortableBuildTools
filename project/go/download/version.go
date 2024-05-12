@@ -4,7 +4,7 @@ import (
 	"errors"
 	"path/filepath"
 
-	aflag "github.com/ricochhet/sdkstandalone/flag"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
 var errNoVersionInDirectory = errors.New("no version in directory")

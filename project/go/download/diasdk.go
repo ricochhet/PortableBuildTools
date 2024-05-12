@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	aflag "github.com/ricochhet/sdkstandalone/flag"
-	acopy "github.com/ricochhet/sdkstandalone/thirdparty/copy"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
+	acopy "github.com/ricochhet/portablebuildtools/thirdparty/copy"
 	"github.com/tidwall/gjson"
 )
 
@@ -29,7 +29,7 @@ func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, f
 		}
 	}
 
-	if err := extractMSI(flags, "./rust-msiexec.exe", filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
+	if err := extractMSI(flags, "./MSIExtract.exe", filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
 		return err
 	}
 

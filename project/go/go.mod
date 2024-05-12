@@ -1,4 +1,4 @@
-module github.com/ricochhet/sdkstandalone
+module github.com/ricochhet/portablebuildtools
 
 go 1.22
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/ricochhet/sdkstandalone/extract"
-	aflag "github.com/ricochhet/sdkstandalone/flag"
+	"github.com/ricochhet/portablebuildtools/extract"
+	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
 )
 

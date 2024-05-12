@@ -377,7 +377,7 @@ with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d:
 
   # run msi installers
   for m in msi:
-    subprocess.check_call(["rust-msiexec", f"{m}", f"{OUTPUT.resolve()}"])
+    subprocess.check_call(["MSIExtract", f"{m}", f"{OUTPUT.resolve()}"])
 
 
 ### versions
@@ -406,7 +406,7 @@ for payload in dbg["payloads"]:
 msi = DOWNLOADS / DOWNLOAD_FOLDER / first(dbg["payloads"], lambda p: p["fileName"].endswith(".msi"))["fileName"]
 
 with tempfile.TemporaryDirectory(dir=OUTPUT) as d2:
-  subprocess.check_call(["rust-msiexec", f"{str(msi)}", f"{Path(d2).resolve()}"])
+  subprocess.check_call(["MSIExtract", f"{str(msi)}", f"{Path(d2).resolve()}"])
   for f in first(Path(d2).glob("System*"), lambda x: True).iterdir():
     shutil.copy(f, dstX64 / f.name)
     shutil.copy(f, dstX86 / f.name)
@@ -429,7 +429,7 @@ for payload in dia["payloads"]:
 msi = DOWNLOADS / DOWNLOAD_FOLDER / first(dia["payloads"], lambda p: p["fileName"].endswith(".msi"))["fileName"]
 
 with tempfile.TemporaryDirectory(dir=DOWNLOADS) as d2:
-  subprocess.check_call(["rust-msiexec", f"{str(msi)}", f"{Path(d2).resolve()}"])
+  subprocess.check_call(["MSIExtract", f"{str(msi)}", f"{Path(d2).resolve()}"])
 
   if HOST == TARGETX86: msdia = "msdia140.dll" #NOSONAR
   elif HOST == TARGETX64: msdia = "amd64/msdia140.dll"

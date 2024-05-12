@@ -2,7 +2,6 @@ package download
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"slices"
@@ -12,51 +11,26 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-var installerPrefix = "Installers\\"
-
-func Getmsvcversion(destpath string) (string, error) {
-	msvcbin := filepath.Join(destpath, "VC", "Tools", "MSVC")
-	binversions, err := filepath.Glob(filepath.Join(msvcbin, "*"))
-	if err != nil {
-		return "", err
-	}
-	if len(binversions) == 0 {
-		return "", errors.New("No files found in the directory:" + msvcbin)
-	}
-
-	return filepath.Base(binversions[0]), nil
-}
-
-func Getwinsdkversion(f *aflag.Flags) (string, error) {
-	winsdkbin := filepath.Join(f.OUTPUT, "Windows Kits", "10", "bin")
-	binversions, err := filepath.Glob(filepath.Join(winsdkbin, "*"))
-	if err != nil {
-		return "", err
-	}
-	if len(binversions) == 0 {
-		return "", errors.New("No files found in the directory:" + winsdkbin)
-	}
-
-	return filepath.Base(binversions[0]), nil
-}
-
-func Getwinsdk(f *aflag.Flags, packages []gjson.Result, sdkPackages []string) error {
+func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []string) error {
+	installerPrefix := "Installers\\"
 	installers := []string{}
 	cabinets := []string{}
+
 	for _, pkg := range packages {
 		name := pkg.Get("fileName").String()
 		url := pkg.Get("url").String()
 		sha256 := pkg.Get("sha256").String()
-		if slices.Contains(sdkPackages, name) {
-			filename := strings.TrimPrefix(name, installerPrefix)
-			installer, err := Downloadprogress(url, sha256, filename, f.DOWNLOADS, filename)
-			if err != nil {
+
+		if slices.Contains(winsdkpackages, name) {
+			fileName := strings.TrimPrefix(name, installerPrefix)
+			installer, err := File(url, sha256, fileName, flags.Downloads, fileName)
+			if err != nil { //nolint:wsl // gofumpt conflict
 				fmt.Println("Error downloading Windows SDK package:", err)
 				continue
 			}
 
-			installers = append(installers, filepath.Join(f.DOWNLOADS, filename))
-			cabinets = append(cabinets, Getmsicabinets(installer)...)
+			installers = append(installers, filepath.Join(flags.Downloads, fileName))
+			cabinets = append(cabinets, getMSICabinets(installer)...)
 		}
 	}
 
@@ -64,10 +38,11 @@ func Getwinsdk(f *aflag.Flags, packages []gjson.Result, sdkPackages []string) er
 		name := pkg.Get("fileName").String()
 		url := pkg.Get("url").String()
 		sha256 := pkg.Get("sha256").String()
+
 		if slices.Contains(cabinets, strings.TrimPrefix(name, installerPrefix)) {
-			filename := strings.TrimPrefix(name, installerPrefix)
-			_, err := Downloadprogress(url, sha256, filename, f.DOWNLOADS, filename)
-			if err != nil {
+			fileName := strings.TrimPrefix(name, installerPrefix)
+
+			if _, err := File(url, sha256, fileName, flags.Downloads, fileName); err != nil {
 				fmt.Println("Error downloading cab:", err)
 				continue
 			}
@@ -75,7 +50,7 @@ func Getwinsdk(f *aflag.Flags, packages []gjson.Result, sdkPackages []string) er
 	}
 
 	for _, installer := range installers {
-		err := Rustmsiexec(f, "./rust-msiexec.exe", installer, f.OUTPUT)
+		err := extractMSI(flags, "./rust-msiexec.exe", installer, flags.Output)
 		if err != nil {
 			return err
 		}
@@ -84,20 +59,26 @@ func Getwinsdk(f *aflag.Flags, packages []gjson.Result, sdkPackages []string) er
 	return nil
 }
 
-func Getmsicabinets(installerMsi []byte) []string {
+//nolint:mnd // represent *.cab location in msi
+func getMSICabinets(installerMsi []byte) []string {
 	cabs := []string{}
 	index := 0
+
 	for {
 		foundIndex := bytes.Index(installerMsi[index:], []byte(".cab"))
 		if foundIndex < 0 {
 			break
 		}
+
 		index += foundIndex + 4
 		start := index - 36
+
 		if start < 0 {
 			start = 0
 		}
+
 		cabs = append(cabs, string(installerMsi[start:index]))
 	}
+
 	return cabs
 }

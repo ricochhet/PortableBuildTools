@@ -11,54 +11,66 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func Getcrtd(payloads []string, dstX64, dstX86, dstARM, dstARM64 string, f *aflag.Flags) error {
+func GetCRTD(payloads []string, destx64, destx86, destarm, destarm64 string, flags *aflag.Flags) error {
 	for _, payload := range payloads {
 		packages := gjson.Parse(payload).Array()
 		for _, pkg := range packages {
-			url := gjson.Get(pkg.String(), "url").String()
-			sha256 := gjson.Get(pkg.String(), "sha256").String()
-			fileName := gjson.Get(pkg.String(), "fileName").String()
-			if _, err := Downloadprogress(url, sha256, fileName, f.DOWNLOADS, fileName); err != nil {
+			url := pkg.Get("url").String()
+			sha256 := pkg.Get("sha256").String()
+			fileName := pkg.Get("fileName").String()
+
+			if _, err := File(url, sha256, fileName, flags.Downloads, fileName); err != nil {
 				fmt.Println("Error downloading CRTD package:", err)
 				continue
 			}
 		}
 	}
-	err := Rustmsiexec(f, "./rust-msiexec.exe", filepath.Join(f.DOWNLOADS, "vc_RuntimeDebug.msi"), f.DOWNLOADS)
+
+	if err := extractMSI(flags, "./rust-msiexec.exe", filepath.Join(flags.Downloads, "vc_RuntimeDebug.msi"), flags.Downloads); err != nil {
+		return err
+	}
+
+	dlls, err := os.ReadDir(filepath.Join(flags.Downloads, "System64"))
 	if err != nil {
 		return err
 	}
-	dlls, err := os.ReadDir(filepath.Join(f.DOWNLOADS, "System64"))
-	if err != nil {
-		return err
-	}
+
 	for _, dll := range dlls {
-		err := copycrtd(dll, dstX64, f)
-		if err != nil {
-			return err
+		paths := []copyCRTDPath{
+			{dest: destx64, flags: flags},
+			{dest: destx86, flags: flags},
 		}
 
-		err = copycrtd(dll, dstX86, f)
-		if err != nil {
-			return err
+		if flags.DownloadARMTargets {
+			paths = append(paths,
+				copyCRTDPath{dest: destarm, flags: flags},
+				copyCRTDPath{dest: destarm64, flags: flags},
+			)
 		}
 
-		if f.DOWNLOAD_ARM_TARGETS {
-			err := copycrtd(dll, dstARM, f)
-			if err != nil {
-				return err
-			}
-
-			err = copycrtd(dll, dstARM64, f)
-			if err != nil {
-				return err
-			}
+		if err := copyCRTDToPaths(dll, paths); err != nil {
+			return err
 		}
 	}
 
 	return nil
 }
 
-func copycrtd(dirEntry fs.DirEntry, target string, f *aflag.Flags) error {
-	return acopy.Copy(filepath.Join(filepath.Join(f.DOWNLOADS, "System64"), dirEntry.Name()), filepath.Join(target, dirEntry.Name()))
+type copyCRTDPath struct {
+	dest  string
+	flags *aflag.Flags
+}
+
+func copyCRTDToPaths(dll fs.DirEntry, paths []copyCRTDPath) error {
+	for _, path := range paths {
+		if err := copyCRTD(dll, path.dest, path.flags); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func copyCRTD(dirEntry fs.DirEntry, target string, flags *aflag.Flags) error {
+	return acopy.Copy(filepath.Join(filepath.Join(flags.Downloads, "System64"), dirEntry.Name()), filepath.Join(target, dirEntry.Name()))
 }

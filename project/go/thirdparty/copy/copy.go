@@ -87,7 +87,6 @@ func copyNextOrSkip(src, dest string, info os.FileInfo, opt Options) error {
 // with considering existence of parent directory
 // and file permission.
 func fcopy(src, dest string, info os.FileInfo, opt Options) (err error) {
-
 	var readcloser io.ReadCloser
 	if opt.FS != nil {
 		readcloser, err = opt.FS.Open(src)

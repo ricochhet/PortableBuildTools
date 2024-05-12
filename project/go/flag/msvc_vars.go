@@ -8,7 +8,8 @@ func lines(lines ...string) string {
 	return strings.Join(lines, "\n")
 }
 
-func NewMsvcX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
+//nolint:lll // constructing batch scripts.
+func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	return lines(
 		`@echo off`,
 		"",
@@ -75,7 +76,8 @@ func NewMsvcX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) stri
 	)
 }
 
-func NewMsvcX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
+//nolint:lll // constructing batch scripts.
+func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
 	return lines(
 		`@echo off`,
 		"",

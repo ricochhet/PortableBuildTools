@@ -7,66 +7,66 @@ import (
 	aflag "github.com/ricochhet/sdkstandalone/flag"
 )
 
+//nolint:cyclop // composed of err checking. . .not complex
 func main() {
-	msvcPackages := aflag.Setpackages(f, f.SET_MSVC_PACKAGES, aflag.Msvcpackages(f))
-	sdkPackages := aflag.Setpackages(f, f.SET_WINSDK_PACKAGES, aflag.Sdkpackages(f))
+	msvcPackages := aflag.SetPackages(flags, flags.SetMSVCPackages, aflag.MSVCPackages(flags))
+	sdkPackages := aflag.SetPackages(flags, flags.SetWinSDKPackages, aflag.WinSDKPackages(flags))
 
-	wd, err := download.Createdirectories(f)
+	cwd, err := download.CreateDirectories(flags)
 	if err != nil {
 		panic(err)
 	}
-	f.DOWNLOADS = filepath.Join(wd, f.DOWNLOADS)
-	f.DOWNLOADS_CRTD = filepath.Join(wd, f.DOWNLOADS_CRTD)
-	f.DOWNLOADS_DIA = filepath.Join(wd, f.DOWNLOADS_DIA)
-	f.OUTPUT = filepath.Join(wd, f.OUTPUT)
-	msvcPackages, sdkPackages = aflag.Maybeappend(msvcPackages, sdkPackages, f)
 
-	if f.REWRITE_VARS {
-		err := download.Writevars(f)
-		if err != nil {
+	flags.Downloads = filepath.Join(cwd, flags.Downloads)
+	flags.DownloadsCRTD = filepath.Join(cwd, flags.DownloadsCRTD)
+	flags.DownloadsDIA = filepath.Join(cwd, flags.DownloadsDIA)
+	flags.Output = filepath.Join(cwd, flags.Output)
+	msvcPackages, sdkPackages = aflag.AppendOptionals(msvcPackages, sdkPackages, flags)
+
+	if flags.RewriteVars {
+		if err := download.WriteVars(flags); err != nil {
 			panic(err)
 		}
+
 		return
 	}
 
-	vsmanifestjson, err := download.Getmanifest(f)
+	vsManifestJSON, err := download.GetManifest(flags)
 	if err != nil {
 		panic(err)
 	}
 
-	payloads, crtd, dia, sdk := download.Getpackages(f, vsmanifestjson, msvcPackages)
-	download.Getpayloads(f, payloads)
-	err = download.Getwinsdk(f, sdk, sdkPackages)
-	if err != nil {
+	payloads, crtd, dia, sdk := download.GetPackages(flags, vsManifestJSON, msvcPackages)
+	if err := download.GetPayloads(flags, payloads); err != nil {
 		panic(err)
 	}
 
-	dstX64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX64)
-	dstX86 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX86)
-	dstARM := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM)
-	dstARM64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM64)
-	err = download.Getcrtd(crtd, dstX64, dstX86, dstARM, dstARM64, f)
-	if err != nil {
+	if err := download.GetWinSDK(flags, sdk, sdkPackages); err != nil {
 		panic(err)
 	}
 
-	err = download.Getdiasdk(dia, dstX64, dstX86, dstARM, dstARM64, f)
-	if err != nil {
+	destx64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx64)
+	destx86 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx86)
+	destarm := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm)
+	destarm64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm64)
+
+	if err := download.GetCRTD(crtd, destx64, destx86, destarm, destarm64, flags); err != nil {
 		panic(err)
 	}
 
-	err = download.Removetelemetry(f)
-	if err != nil {
+	if err := download.GetDIASDK(dia, destx64, destx86, destarm, destarm64, flags); err != nil {
 		panic(err)
 	}
 
-	err = download.Cleanhost(f)
-	if err != nil {
+	if err := download.RemoveVCTipsTelemetry(flags); err != nil {
 		panic(err)
 	}
 
-	err = download.Writevars(f)
-	if err != nil {
+	if err := download.CleanHostDirectory(flags); err != nil {
+		panic(err)
+	}
+
+	if err := download.WriteVars(flags); err != nil {
 		panic(err)
 	}
 }

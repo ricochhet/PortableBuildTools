@@ -1,6 +1,7 @@
 package download
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -15,24 +16,18 @@ import (
 	"github.com/ricochhet/sdkstandalone/process"
 )
 
-var vctipExe = "vctip.exe"
+var (
+	errURLEmpty  = errors.New("url is empty")
+	errPathEmpty = errors.New("path is empty")
+	errNameEmpty = errors.New("name is empty")
+)
 
-func Createdirectories(f *aflag.Flags) (string, error) {
-	err := os.MkdirAll(f.DOWNLOADS, 0700)
-	if err != nil {
-		return "", err
-	}
-	err = os.MkdirAll(f.DOWNLOADS_CRTD, 0700)
-	if err != nil {
-		return "", err
-	}
-	err = os.MkdirAll(f.DOWNLOADS_DIA, 0700)
-	if err != nil {
-		return "", err
-	}
-	err = os.MkdirAll(f.OUTPUT, 0700)
-	if err != nil {
-		return "", err
+func CreateDirectories(flags *aflag.Flags) (string, error) {
+	directories := []string{flags.Downloads, flags.DownloadsCRTD, flags.DownloadsDIA, flags.Output}
+	for _, dir := range directories {
+		if err := os.MkdirAll(dir, 0o700); err != nil {
+			return "", err
+		}
 	}
 
 	wd, err := os.Getwd()
@@ -43,42 +38,35 @@ func Createdirectories(f *aflag.Flags) (string, error) {
 	return wd, nil
 }
 
-func Removetelemetry(f *aflag.Flags) error {
-	vctipX64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX64, vctipExe)
-	vctipX86 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETX86, vctipExe)
-	vctipARM := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM, vctipExe)
-	vctipARM64 := filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+f.HOST, f.TARGETARM64, vctipExe)
-
-	err := os.Remove(vctipX64)
-	if err != nil {
-		return err
+func RemoveVCTipsTelemetry(flags *aflag.Flags) error {
+	vctipExe := "vctip.exe"
+	paths := []string{
+		filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx64, vctipExe),
+		filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx86, vctipExe),
 	}
 
-	err = os.Remove(vctipX86)
-	if err != nil {
-		return err
+	if flags.DownloadARMTargets {
+		paths = append(paths,
+			filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm, vctipExe),
+			filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm64, vctipExe),
+		)
 	}
 
-	if f.DOWNLOAD_ARM_TARGETS {
-		err := os.Remove(vctipARM)
-		if err != nil {
-			return err
-		}
-
-		err = os.Remove(vctipARM64)
-		if err != nil {
+	for _, path := range paths {
+		err := os.Remove(path)
+		if err != nil && !os.IsNotExist(err) {
 			return err
 		}
 	}
 
-	return err
+	return nil
 }
 
-func Cleanhost(f *aflag.Flags) error {
-	targets := []string{f.TARGETX64, f.TARGETX86, f.TARGETARM, f.TARGETARM64}
+func CleanHostDirectory(flags *aflag.Flags) error {
+	targets := []string{flags.Targetx64, flags.Targetx86, flags.Targetarm, flags.Targetarm64}
 	for _, arch := range targets {
-		if arch != f.HOST {
-			err := os.RemoveAll(filepath.Join(f.OUTPUT, "VC", "Tools", "MSVC", f.MSVC_VERSION_LOCAL, "bin", "Host"+arch))
+		if arch != flags.Host {
+			err := os.RemoveAll(filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+arch))
 			if err != nil {
 				return err
 			}
@@ -90,10 +78,15 @@ func Cleanhost(f *aflag.Flags) error {
 
 func Download(url string) ([]byte, error) {
 	if url == "" {
-		return nil, errors.New("url is empty")
+		return nil, errURLEmpty
 	}
 
-	resp, err := http.Get(url)
+	req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -107,29 +100,23 @@ func Download(url string) ([]byte, error) {
 	return body, nil
 }
 
-func Downloadprogress(url, check, name, apath, aname string) ([]byte, error) {
-	if url == "" {
-		return nil, errors.New("url is empty")
-	}
-	if apath == "" {
-		return nil, errors.New("path is empty")
-	}
-	if name == "" || aname == "" {
-		return nil, errors.New("name is empty")
-	}
-
-	fmt.Printf("%s ... DOWNLOADING\n", name)
-	fpath := filepath.Join(apath, aname)
-	err := os.MkdirAll(filepath.Dir(fpath), 0700)
-	if err != nil {
+func File(url, check, name, apath, aname string) ([]byte, error) {
+	if err := validateDownloadParams(url, apath, name, aname); err != nil {
 		return nil, err
 	}
+
+	fpath := filepath.Join(apath, aname)
+	if err := os.MkdirAll(filepath.Dir(fpath), 0o700); err != nil {
+		return nil, err
+	}
+
 	if _, err := os.Stat(fpath); err == nil {
 		data, err := os.ReadFile(fpath)
 		if err == nil {
 			hash := sha256.New()
 			hash.Write(data)
 			hashSum := hex.EncodeToString(hash.Sum(nil))
+
 			if strings.ToLower(check) == hashSum {
 				fmt.Printf("%s ... OK\n", name)
 				return data, nil
@@ -137,48 +124,82 @@ func Downloadprogress(url, check, name, apath, aname string) ([]byte, error) {
 		}
 	}
 
-	resp, err := http.Get(url)
+	fmt.Printf("%s ... DOWNLOADING\n", name)
+
+	req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	f, err := os.Create(fpath)
+	file, err := os.Create(fpath)
 	if err != nil {
 		return nil, err
 	}
-	defer f.Close()
+	defer file.Close()
 
+	return hashMatch(resp, file, fpath, check, name)
+}
+
+func validateDownloadParams(url, apath, name, aname string) error {
+	if url == "" {
+		return errURLEmpty
+	}
+
+	if apath == "" {
+		return errPathEmpty
+	}
+
+	if name == "" || aname == "" {
+		return errNameEmpty
+	}
+
+	return nil
+}
+
+func hashMatch(resp *http.Response, flags *os.File, fpath, check, name string) ([]byte, error) {
 	hash := sha256.New()
-	buf := make([]byte, 1<<20)
+	buf := make([]byte, 1<<20) //nolint:mnd // 1 megabyte buffer
+
 	for {
-		n, err := resp.Body.Read(buf)
+		index, err := resp.Body.Read(buf)
 		if err != nil && err != io.EOF {
 			return nil, err
 		}
-		if n == 0 {
+
+		if index == 0 {
 			break
 		}
-		if _, err := f.Write(buf[:n]); err != nil {
+
+		if _, err := flags.Write(buf[:index]); err != nil {
 			return nil, err
 		}
-		if _, err := hash.Write(buf[:n]); err != nil {
+
+		if _, err := hash.Write(buf[:index]); err != nil {
 			return nil, err
 		}
 	}
+
 	data, err := os.ReadFile(fpath)
 	if err != nil {
 		return nil, err
 	}
-	hashsum := hex.EncodeToString(hash.Sum(nil))
-	if strings.ToLower(check) != hashsum {
-		return nil, fmt.Errorf("hash mismatch for %s", name)
+
+	hashSum := hex.EncodeToString(hash.Sum(nil))
+	if strings.ToLower(check) != hashSum {
+		return nil, fmt.Errorf("hash mismatch for %s", name) //nolint:err113 // required name prevents static error
 	}
+
 	return data, nil
 }
 
-func Rustmsiexec(f *aflag.Flags, args ...string) error {
-	if f.MSIEXEC_VERBOSE {
+func extractMSI(flags *aflag.Flags, args ...string) error {
+	if flags.MSIExtractVerbose {
 		args = append(args, "-s")
 		return process.Exec("./rust-msiexec.exe", args...)
 	}

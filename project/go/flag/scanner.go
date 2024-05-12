@@ -6,8 +6,9 @@ import (
 	"strings"
 )
 
-func Setpackages(f *Flags, apath string, defaults []string) []string {
+func SetPackages(flags *Flags, apath string, defaults []string) []string {
 	packages := []string{}
+
 	if apath != "" {
 		exists, err := IsFile(apath)
 		if err != nil {
@@ -15,15 +16,17 @@ func Setpackages(f *Flags, apath string, defaults []string) []string {
 		}
 
 		if exists {
-			o, err := os.OpenFile(apath, os.O_RDONLY, 0600)
+			o, err := os.OpenFile(apath, os.O_RDONLY, 0o600)
 			if err != nil {
 				panic(err)
 			}
+
 			l, err := Scanner(o)
 			if err != nil {
 				panic(err)
 			}
-			packages = Parse(l, f)
+
+			packages = Parse(l, flags)
 		}
 	} else {
 		packages = defaults
@@ -32,25 +35,27 @@ func Setpackages(f *Flags, apath string, defaults []string) []string {
 	return packages
 }
 
-func Parse(list []string, f *Flags) []string {
+func Parse(list []string, flags *Flags) []string {
 	replacements := map[string]string{
-		"{HOST}":               f.HOST,
-		"{TARGETX64}":          f.TARGETX64,
-		"{TARGETX86}":          f.TARGETX86,
-		"{TARGETARM}":          f.TARGETARM,
-		"{TARGETARM_UPPER}":    strings.ToUpper(f.TARGETARM),
-		"{TARGETARM64}":        f.TARGETARM64,
-		"{TARGETARM64_UPPER}":  strings.ToUpper(f.TARGETARM64),
-		"{MSVC_VERSION}":       f.MSVC_VERSION,
-		"{MSVC_VERSION_LOCAL}": f.MSVC_VERSION_LOCAL,
-		"{SDK_PID}":            f.SDK_PID,
+		"{HOST}":               flags.Host,
+		"{TARGETX64}":          flags.Targetx64,
+		"{TARGETX86}":          flags.Targetx86,
+		"{TARGETARM}":          flags.Targetarm,
+		"{TARGETARM_UPPER}":    strings.ToUpper(flags.Targetarm),
+		"{TARGETARM64}":        flags.Targetarm64,
+		"{TARGETARM64_UPPER}":  strings.ToUpper(flags.Targetarm64),
+		"{MSVC_VERSION}":       flags.MsvcVer,
+		"{MSVC_VERSION_LOCAL}": flags.MsvcVerLocal,
+		"{WINSDK_VERSION}":     flags.WinSDKVer,
 	}
 
 	parsed := []string{}
+
 	for _, item := range list {
 		for placeholder, value := range replacements {
 			item = strings.ReplaceAll(item, placeholder, value)
 		}
+
 		parsed = append(parsed, item)
 	}
 
@@ -59,11 +64,13 @@ func Parse(list []string, f *Flags) []string {
 
 func Scanner(file *os.File) ([]string, error) {
 	entries := []string{}
+
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		if len(scanner.Text()) == 0 {
 			continue
 		}
+
 		entries = append(entries, scanner.Text())
 	}
 
@@ -80,6 +87,7 @@ func IsFile(path string) (bool, error) {
 		if os.IsNotExist(err) {
 			return false, nil
 		}
+
 		return false, err
 	}
 

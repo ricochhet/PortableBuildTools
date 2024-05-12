@@ -7,9 +7,9 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func Getmanifest(f *aflag.Flags) (string, error) {
-	manifest := ""
-	if b, err := Download(f.MANIFEST_URL); err == nil {
+func GetManifest(flags *aflag.Flags) (string, error) {
+	var manifest string
+	if b, err := Download(flags.ManifestURL); err == nil {
 		manifest = string(b)
 	} else {
 		fmt.Println("Error downloading main manifest:", err)
@@ -17,21 +17,23 @@ func Getmanifest(f *aflag.Flags) (string, error) {
 	}
 
 	channelItems := gjson.Get(manifest, "channelItems").Array()
-	vschannelmanifest := ""
+	vsChannelManifest := ""
+
 	for _, item := range channelItems {
 		if gjson.Get(item.String(), "id").Str == "Microsoft.VisualStudio.Manifests.VisualStudio" {
-			vschannelmanifest = item.String()
+			vsChannelManifest = item.String()
 			break
 		}
 	}
 
-	vsmanifestjson := ""
-	payload := gjson.Get(vschannelmanifest, "payloads").Array()[0].String()
+	var vsManifestJSON string
+
+	payload := gjson.Get(vsChannelManifest, "payloads").Array()[0].String()
 	if b, err := Download(gjson.Get(payload, "url").String()); err == nil {
-		vsmanifestjson = string(b)
+		vsManifestJSON = string(b)
 	} else {
 		return "", err
 	}
 
-	return vsmanifestjson, nil
+	return vsManifestJSON, nil
 }

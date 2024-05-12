@@ -2,6 +2,7 @@ package extract
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
 	"net/url"
@@ -10,51 +11,79 @@ import (
 	"strings"
 )
 
-func Extractpackage(fpath, destpath string) {
+var errNotVsixFile = errors.New("file is not a vsix file")
+
+func Vsix(fpath, destpath string) error {
 	if !strings.HasSuffix(fpath, ".vsix") {
-		fmt.Println("File is not a vsix file.")
-		return
+		return errNotVsixFile
 	}
 
-	zr, err := zip.OpenReader(fpath)
-	if err != nil {
-		fmt.Println("Error opening vsix file:", err)
-		return
+	return extractZip(fpath, destpath)
+}
+
+func extractZip(fpath, destpath string) error {
+	copybytes := 1024
+	zipread, err := zip.OpenReader(fpath)
+	if err != nil { //nolint:wsl // gofumpt conflict
+		return err
 	}
 
-	for _, f := range zr.File {
-		rc, err := f.Open()
+	for _, file := range zipread.File {
+		readclose, err := file.Open()
 		if err != nil {
-			fmt.Println("Error opening vsix file for extraction:", err)
+			fmt.Println("Error opening zip file for extraction:", err)
 			continue
 		}
-		defer rc.Close()
-		if !strings.HasPrefix(f.Name, "Contents") {
+		defer readclose.Close()
+
+		if !strings.HasPrefix(file.Name, "Contents") {
 			continue
 		}
 
-		name, err := url.QueryUnescape(strings.TrimPrefix(f.Name, "Contents/"))
+		name, err := url.QueryUnescape(strings.TrimPrefix(file.Name, "Contents/"))
 		if err != nil {
 			fmt.Println("Error decoding name:", err)
-			return
+			return err
 		}
+
 		dest := filepath.Join(destpath, name)
-		if f.FileInfo().IsDir() {
-			os.MkdirAll(dest, os.ModePerm)
-		} else {
-			os.MkdirAll(filepath.Dir(dest), os.ModePerm)
-			w, err := os.Create(dest)
-			if err != nil {
-				fmt.Println("Error creating destination file:", err)
+
+		if file.FileInfo().IsDir() {
+			if err := os.MkdirAll(dest, os.ModePerm); err != nil {
 				continue
 			}
-			if _, err := io.Copy(w, rc); err != nil {
-				fmt.Println("Error copying file:", err)
-				w.Close()
-				continue
-			}
-			w.Close()
+		} else if err := destcopy(dest, readclose, int64(copybytes)); err != nil {
+			return err
 		}
 	}
-	zr.Close()
+
+	zipread.Close()
+
+	return nil
+}
+
+func destcopy(apath string, src io.Reader, copybytes int64) error {
+	if err := os.MkdirAll(filepath.Dir(apath), os.ModePerm); err != nil {
+		return err
+	}
+
+	dst, err := os.Create(apath)
+	if err != nil {
+		return err
+	}
+
+	for {
+		_, err := io.CopyN(dst, src, copybytes)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				break
+			}
+
+			return err
+		}
+	}
+
+	dst.Close()
+
+	return nil
 }

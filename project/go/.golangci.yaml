@@ -1,0 +1,149 @@
+linters-settings:
+    lll:
+        line-length: 140
+    funlen:
+        lines: 100
+        statements: 50
+    mnd:
+        ignored-numbers:
+            - '0o600'
+            - '0o700'
+    gocyclo:
+        min-complexity: 15
+    goimports:
+        local-prefixes: github.com/golang-templates/seed
+    govet:
+        shadow: true
+    misspell:
+        locale: US
+        ignore-words:
+            - spectre
+    nolintlint:
+        allow-unused: false # report any unused nolint directives
+        require-explanation: true # require an explanation for nolint directives
+        require-specific: false # don't require nolint directives to be specific about which linter is being skipped
+    revive:
+        confidence: 0
+    depguard:
+        rules:
+            prevent_unmaintained_packages:
+                allow:
+                    - $gostd
+                    - github.com/tidwall/gjson
+                    - github.com/ricochhet/sdkstandalone/flag
+                    - github.com/ricochhet/sdkstandalone/process
+                    - github.com/ricochhet/sdkstandalone/extract
+                    - github.com/ricochhet/sdkstandalone/download
+                    - github.com/ricochhet/sdkstandalone/thirdparty/copy
+issues:
+    exclude-dirs:
+        - thirdparty/
+
+linters:
+    enable:
+        - wsl
+        # - nlreturn
+        # - wrapcheck
+        # - nestif
+        - gci
+        - lll
+        - cyclop
+        - fatcontext
+        - dupword
+        - gocognit
+        - maintidx
+        - perfsprint
+        - prealloc
+        - unparam
+        - ireturn
+        - grouper
+        - importas
+        - inamedparam
+        - interfacebloat
+        - goprintffuncname
+        - gomoddirectives
+        - godox
+        - goheader
+        - godot
+        - goconst
+        - gochecknoglobals
+        - ginkgolinter
+        - forcetypeassert
+        - errname
+        - exhaustruct
+        - depguard
+        - decorder
+        - copyloopvar
+        - containedctx
+        - canonicalheader
+        - zerologlint
+        - testifylint
+        - spancheck
+        - reassign
+        - protogetter
+        - makezero
+        - loggercheck
+        - gosmopolitan
+        - gochecksumtype
+        - gocheckcompilerdirectives
+        - exportloopref
+        - exhaustive
+        - errorlint
+        - errchkjson
+        - durationcheck
+        - contextcheck
+        - asciicheck
+        - asasalint
+        - err113
+        - revive
+        - gosec
+        - errcheck
+        - nilnil
+        - nilerr
+        - bodyclose
+        - dogsled
+        - dupl
+        - exportloopref
+        - funlen
+        - gochecknoinits
+        - gocritic
+        - goconst
+        - gocyclo
+        - gofumpt
+        - goimports
+        - rowserrcheck
+        - goprintffuncname
+        - gosimple
+        - govet
+        - ineffassign
+        - misspell
+        - nakedret
+        - noctx
+        - nolintlint
+        - staticcheck
+        - stylecheck
+        - sqlclosecheck
+        - typecheck
+        - unconvert
+        - unparam
+        - unused
+        - unconvert
+        - tparallel
+        - whitespace
+        - varnamelen
+        - whitespace
+        - wastedassign
+        - usestdlibvars
+        - nonamedreturns
+        - nosprintfhostport
+        - paralleltest
+        - predeclared
+        - tagliatelle
+        - testpackage
+        - promlinter
+        - tagalign
+        - thelper
+        - musttag
+        - mirror
+        - tenv
+        - mnd

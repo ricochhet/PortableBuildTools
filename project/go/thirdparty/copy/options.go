@@ -11,7 +11,6 @@ import (
 
 // Options specifies optional actions on copying.
 type Options struct {
-
 	// OnSymlink can specify what to do on symlink
 	OnSymlink func(src string) SymlinkAction
 

@@ -7,7 +7,6 @@ import (
 )
 
 func ExampleCopy() {
-
 	err := Copy("test/data/example", "test/data.copy/example")
 	fmt.Println("Error:", err)
 	info, _ := os.Stat("test/data.copy/example")
@@ -19,7 +18,6 @@ func ExampleCopy() {
 }
 
 func ExampleOptions() {
-
 	err := Copy(
 		"test/data/example",
 		"test/data.copy/example_with_options",
@@ -30,7 +28,7 @@ func ExampleOptions() {
 			OnSymlink: func(src string) SymlinkAction {
 				return Skip
 			},
-			PermissionControl: AddPermission(0200),
+			PermissionControl: AddPermission(0o200),
 		},
 	)
 	fmt.Println("Error:", err)
@@ -40,5 +38,4 @@ func ExampleOptions() {
 	// Output:
 	// Error: <nil>
 	// Skipped: true
-
 }

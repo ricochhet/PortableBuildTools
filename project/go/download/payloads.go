@@ -1,13 +1,18 @@
 package download
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
+	"strings"
 
-	"github.com/ricochhet/portablebuildtools/extract"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/simpledownload"
+	"github.com/ricochhet/simplezip"
 	"github.com/tidwall/gjson"
 )
+
+var errNotVsixFile = errors.New("file is not a vsix file")
 
 func GetPayloads(flags *aflag.Flags, payloads []string) error {
 	for _, payload := range payloads {
@@ -17,7 +22,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 			sha256 := gjson.Get(pkg.String(), "sha256").String()
 			fileName := gjson.Get(pkg.String(), "fileName").String()
 
-			if _, err := File(url, sha256, fileName, flags.Downloads, fileName); err != nil {
+			if err := simpledownload.File(url, sha256, fileName, flags.Downloads); err != nil {
 				fmt.Println("Error downloading MSVC package:", err)
 				continue
 			}
@@ -26,7 +31,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 
 			fmt.Println("Extracting: ", fpath)
 
-			if err := extract.Vsix(fpath, flags.Output); err != nil {
+			if err := vsix(fpath, flags.Output); err != nil {
 				return err
 			}
 
@@ -35,4 +40,12 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 	}
 
 	return nil
+}
+
+func vsix(fpath, destpath string) error {
+	if !strings.HasSuffix(fpath, ".vsix") {
+		return errNotVsixFile
+	}
+
+	return simplezip.UnzipByPrefixWithMessenger(fpath, destpath, "Contents", simplezip.DefaultUnzipMessenger())
 }

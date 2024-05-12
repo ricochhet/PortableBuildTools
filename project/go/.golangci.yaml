@@ -30,6 +30,8 @@ linters-settings:
                 allow:
                     - $gostd
                     - github.com/tidwall/gjson
+                    - github.com/ricochhet/simplezip
+                    - github.com/ricochhet/simpledownload
                     - github.com/ricochhet/portablebuildtools/flag
                     - github.com/ricochhet/portablebuildtools/process
                     - github.com/ricochhet/portablebuildtools/extract

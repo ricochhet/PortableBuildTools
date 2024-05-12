@@ -4,8 +4,8 @@ import (
 	"path/filepath"
 
 	"github.com/ricochhet/portablebuildtools/download"
-	"github.com/ricochhet/portablebuildtools/extract"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/simplezip"
 )
 
 //nolint:cyclop // composed of err checking. . .not complex
@@ -77,7 +77,7 @@ func main() {
 	}
 
 	if flags.CreateZip {
-		if err := extract.Zip(flags.Output, flags.OutputZip); err != nil {
+		if err := simplezip.Zip(flags.Output, flags.OutputZip); err != nil {
 			panic(err)
 		}
 	}

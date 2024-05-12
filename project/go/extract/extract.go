@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -18,10 +19,54 @@ func Vsix(fpath, destpath string) error {
 		return errNotVsixFile
 	}
 
-	return extractZip(fpath, destpath)
+	return Unzip(fpath, destpath)
 }
 
-func extractZip(fpath, destpath string) error {
+func Zip(src string, dest string) error {
+	file, err := os.Create(dest)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	zipwrite := zip.NewWriter(file)
+	defer zipwrite.Close()
+
+	err = filepath.Walk(src, func(path string, info fs.FileInfo, err error) error {
+		if info.IsDir() {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		zipcreate, err := zipwrite.Create(convertPath(path, src))
+		if err != nil {
+			return err
+		}
+
+		file, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+
+		defer file.Close()
+
+		if _, err = io.Copy(zipcreate, file); err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func Unzip(fpath, destpath string) error {
 	copybytes := 1024
 	zipread, err := zip.OpenReader(fpath)
 	if err != nil { //nolint:wsl // gofumpt conflict
@@ -86,4 +131,19 @@ func destcopy(apath string, src io.Reader, copybytes int64) error {
 	dst.Close()
 
 	return nil
+}
+
+func convertPath(path, src string) string {
+	path = trimSrcPrefix(path, src)
+	path = replaceBackslashes(path)
+
+	return path
+}
+
+func trimSrcPrefix(path, src string) string {
+	return strings.TrimPrefix(strings.TrimPrefix(path, src), string(filepath.Separator))
+}
+
+func replaceBackslashes(path string) string {
+	return strings.ReplaceAll(path, "\\", "/")
 }

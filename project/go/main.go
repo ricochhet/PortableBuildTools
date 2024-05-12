@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/ricochhet/portablebuildtools/download"
+	"github.com/ricochhet/portablebuildtools/extract"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
@@ -73,5 +74,11 @@ func main() {
 
 	if err := download.WriteVars(flags); err != nil {
 		panic(err)
+	}
+
+	if flags.CreateZip {
+		if err := extract.Zip(flags.Output, flags.OutputZip); err != nil {
+			panic(err)
+		}
 	}
 }

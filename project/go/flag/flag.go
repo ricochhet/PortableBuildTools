@@ -4,6 +4,7 @@ type Flags struct {
 	MsvcVer             string
 	WinSDKVer           string
 	Output              string // output folder
+	OutputZip           string
 	Downloads           string // temporary download files
 	DownloadsCRTD       string
 	DownloadsDIA        string
@@ -23,4 +24,5 @@ type Flags struct {
 	Targetarm64         string
 	RewriteVars         bool
 	MSIExtractVerbose   bool
+	CreateZip           bool
 }

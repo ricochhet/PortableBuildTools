@@ -26,7 +26,7 @@ func GetCRTD(payloads []string, destx64, destx86, destarm, destarm64 string, fla
 		}
 	}
 
-	if err := extractMSI(flags, "./MSIExtract.exe", filepath.Join(flags.Downloads, "vc_RuntimeDebug.msi"), flags.Downloads); err != nil {
+	if err := extractMSI(flags, filepath.Join(flags.Downloads, "vc_RuntimeDebug.msi"), flags.Downloads); err != nil {
 		return err
 	}
 

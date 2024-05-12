@@ -12,20 +12,24 @@ fn main() -> Result<(), String> {
     let data = fs::read(file).map_err(e("Reading MSI failed"))?;
     fs::create_dir(temp_dir.clone()).map_err(e("Temp dir already exists?"))?;
     if data[0..8] != [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1] {
+        println!("{file}");
         panic!("Invalid header!")
     }
     let version = u16::from_le_bytes([data[26], data[27]]);
     let sector_size = if version == 3 {
         if data[30..32] != [0x09, 0x00] {
+            println!("{file}");
             panic!("Invalid shift")
         }
         512
     } else if version == 4 {
         if data[30..32] != [0x0c, 0x00] {
+            println!("{file}");
             panic!("Invalid shift")
         }
         4096
     } else {
+        println!("{file}");
         panic!("Invalid version")
     };
     let _num_dirs = get_u32(&data, 40);

@@ -35,12 +35,11 @@ var (
 )
 
 func Newflag() *aflag.Flags {
-	return &aflag.Flags{} //nolint:exhaustruct // intentionally leave struct non-exhausted.
+	return &defaults
 }
 
 //nolint:gochecknoinits,lll // cli flags only
 func init() {
-	flags := defaults
 	flag.StringVar(&flags.MsvcVer, "msvc", defaults.MsvcVer, "Specify MSVC version")
 	flag.StringVar(&flags.WinSDKVer, "sdkv", defaults.WinSDKVer, "Specify Windows SDK identifier")
 	flag.StringVar(&flags.Output, "output", defaults.Output, "Specify output folder")

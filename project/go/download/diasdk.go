@@ -29,7 +29,7 @@ func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, f
 		}
 	}
 
-	if err := extractMSI(flags, "./MSIExtract.exe", filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
+	if err := extractMSI(flags, filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
 		return err
 	}
 

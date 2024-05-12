@@ -50,7 +50,7 @@ func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 	}
 
 	for _, installer := range installers {
-		err := extractMSI(flags, "./MSIExtract.exe", installer, flags.Output)
+		err := extractMSI(flags, installer, flags.Output)
 		if err != nil {
 			return err
 		}

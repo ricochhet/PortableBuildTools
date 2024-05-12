@@ -7,7 +7,7 @@ import (
 )
 
 func SetPackages(flags *Flags, apath string, defaults []string) []string {
-	packages := []string{}
+	packages := defaults
 
 	if apath != "" {
 		exists, err := IsFile(apath)
@@ -15,21 +15,21 @@ func SetPackages(flags *Flags, apath string, defaults []string) []string {
 			panic(err)
 		}
 
-		if exists {
-			o, err := os.OpenFile(apath, os.O_RDONLY, 0o600)
-			if err != nil {
-				panic(err)
-			}
-
-			l, err := Scanner(o)
-			if err != nil {
-				panic(err)
-			}
-
-			packages = Parse(l, flags)
+		if !exists {
+			return packages
 		}
-	} else {
-		packages = defaults
+
+		o, err := os.OpenFile(apath, os.O_RDONLY, 0o600)
+		if err != nil {
+			panic(err)
+		}
+
+		l, err := Scanner(o)
+		if err != nil {
+			panic(err)
+		}
+
+		packages = Parse(l, flags)
 	}
 
 	return packages

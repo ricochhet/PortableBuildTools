@@ -37,16 +37,15 @@ func SetPackages(flags *Flags, apath string, defaults []string) []string {
 
 func Parse(list []string, flags *Flags) []string {
 	replacements := map[string]string{
-		"{HOST}":               flags.Host,
-		"{TARGETX64}":          flags.Targetx64,
-		"{TARGETX86}":          flags.Targetx86,
-		"{TARGETARM}":          flags.Targetarm,
-		"{TARGETARM_UPPER}":    strings.ToUpper(flags.Targetarm),
-		"{TARGETARM64}":        flags.Targetarm64,
-		"{TARGETARM64_UPPER}":  strings.ToUpper(flags.Targetarm64),
-		"{MSVC_VERSION}":       flags.MsvcVer,
-		"{MSVC_VERSION_LOCAL}": flags.MsvcVerLocal,
-		"{WINSDK_VERSION}":     flags.WinSDKVer,
+		"{HOST}":              flags.Host,
+		"{TARGETX64}":         flags.Targetx64,
+		"{TARGETX86}":         flags.Targetx86,
+		"{TARGETARM}":         flags.Targetarm,
+		"{TARGETARM_UPPER}":   strings.ToUpper(flags.Targetarm),
+		"{TARGETARM64}":       flags.Targetarm64,
+		"{TARGETARM64_UPPER}": strings.ToUpper(flags.Targetarm64),
+		"{MSVC_VERSION}":      flags.MsvcVer,
+		"{WINSDK_VERSION}":    flags.WinSDKVer,
 	}
 
 	parsed := []string{}

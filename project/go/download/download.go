@@ -40,15 +40,20 @@ func CreateDirectories(flags *aflag.Flags) (string, error) {
 
 func RemoveVCTipsTelemetry(flags *aflag.Flags) error {
 	vctipExe := "vctip.exe"
+	msvcv, err := GetMSVCVersion(flags)
+	if err != nil { //nolint:wsl // gofumpt conflict
+		return err
+	}
+
 	paths := []string{
-		filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx64, vctipExe),
-		filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx86, vctipExe),
+		filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx64, vctipExe),
+		filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx86, vctipExe),
 	}
 
 	if flags.DownloadARMTargets {
 		paths = append(paths,
-			filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm, vctipExe),
-			filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm64, vctipExe),
+			filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm, vctipExe),
+			filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm64, vctipExe),
 		)
 	}
 
@@ -64,9 +69,14 @@ func RemoveVCTipsTelemetry(flags *aflag.Flags) error {
 
 func CleanHostDirectory(flags *aflag.Flags) error {
 	targets := []string{flags.Targetx64, flags.Targetx86, flags.Targetarm, flags.Targetarm64}
+	msvcv, err := GetMSVCVersion(flags)
+	if err != nil { //nolint:wsl // gofumpt conflict
+		return err
+	}
+
 	for _, arch := range targets {
 		if arch != flags.Host {
-			err := os.RemoveAll(filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+arch))
+			err := os.RemoveAll(filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+arch))
 			if err != nil {
 				return err
 			}

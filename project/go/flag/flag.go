@@ -2,7 +2,6 @@ package flag
 
 type Flags struct {
 	MsvcVer             string
-	MsvcVerLocal        string
 	WinSDKVer           string
 	Output              string // output folder
 	Downloads           string // temporary download files

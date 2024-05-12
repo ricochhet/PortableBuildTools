@@ -45,10 +45,15 @@ func main() {
 		panic(err)
 	}
 
-	destx64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx64)
-	destx86 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetx86)
-	destarm := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm)
-	destarm64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", flags.MsvcVerLocal, "bin", "Host"+flags.Host, flags.Targetarm64)
+	msvcv, err := download.GetMSVCVersion(flags)
+	if err != nil {
+		panic(err)
+	}
+
+	destx64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx64)
+	destx86 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx86)
+	destarm := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm)
+	destarm64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm64)
 
 	if err := download.GetCRTD(crtd, destx64, destx86, destarm, destarm64, flags); err != nil {
 		panic(err)

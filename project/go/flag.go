@@ -10,7 +10,6 @@ var (
 	flags    *aflag.Flags = Newflag()    //nolint:gochecknoglobals // flags need to be accessed heavily.
 	defaults              = aflag.Flags{ //nolint:gochecknoglobals // ^^^^^
 		MsvcVer:             "14.39.17.9",
-		MsvcVerLocal:        "14.39.33519",
 		WinSDKVer:           "Win11SDK_10.0.22621",
 		Output:              "build/sdk_standalone",
 		Downloads:           "build/downloads",
@@ -43,7 +42,6 @@ func Newflag() *aflag.Flags {
 func init() {
 	flags := defaults
 	flag.StringVar(&flags.MsvcVer, "msvc", defaults.MsvcVer, "Specify MSVC version")
-	flag.StringVar(&flags.MsvcVerLocal, "msvcv", defaults.MsvcVerLocal, "Specify secondary MSVC version")
 	flag.StringVar(&flags.WinSDKVer, "sdkv", defaults.WinSDKVer, "Specify Windows SDK identifier")
 	flag.StringVar(&flags.Output, "output", defaults.Output, "Specify output folder")
 	flag.StringVar(&flags.Downloads, "downloads", defaults.Downloads, "Specify temporary download files folder")

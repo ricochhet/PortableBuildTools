@@ -9,8 +9,8 @@ import (
 
 var errNoVersionInDirectory = errors.New("no version in directory")
 
-func GetMSVCVersion(destpath string) (string, error) {
-	return getVersion(filepath.Join(destpath, "VC", "Tools", "MSVC"))
+func GetMSVCVersion(flags *aflag.Flags) (string, error) {
+	return getVersion(filepath.Join(flags.Output, "VC", "Tools", "MSVC"))
 }
 
 func GetWinSDKVersion(flags *aflag.Flags) (string, error) {

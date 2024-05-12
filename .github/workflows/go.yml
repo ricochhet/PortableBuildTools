@@ -1,0 +1,35 @@
+name: Go
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go 1.x
+        uses: actions/setup-go@v4
+        with:
+          go-version: "stable"
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Build
+        working-directory: project/go
+        run: |
+          chmod +x build.sh
+          ./build.sh
+      - name: Test
+        working-directory: project/go
+        run: go test -race -v ./...
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: project/go/downloader
+          name: ${{ github.run_number }}

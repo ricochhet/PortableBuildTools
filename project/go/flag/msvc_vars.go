@@ -69,9 +69,9 @@ func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) stri
 		`if "%VSLLVMCLANG%" == "true" (`,
 		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
 		`  @if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
-		`  @if exist "%LLVM_PATH%\LIB" set "LIB=%LLVM_PATH%\LIB;%LIB%"`,
-		`  @if exist "%LLVM_PATH%\LIB" set "LIBPATH=%LLVM_PATH%\LIB;%LIBPATH%"`,
-		`  @if exist "%LLVM_PATH%\INCLUDE" set "INCLUDE=%LLVM_PATH%\INCLUDE;%INCLUDE%"`,
+		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
+		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
+		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`,
 		`)`,
 	)
 }
@@ -136,11 +136,11 @@ func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) stri
 		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store\references;%LIBPATH%"`,
 		"",
 		`if "%VSLLVMCLANG%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
+		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
 		`  @if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
-		`  @if exist "%LLVM_PATH%\LIB" set "LIB=%LLVM_PATH%\LIB;%LIB%"`,
-		`  @if exist "%LLVM_PATH%\LIB" set "LIBPATH=%LLVM_PATH%\LIB;%LIBPATH%"`,
-		`  @if exist "%LLVM_PATH%\INCLUDE" set "INCLUDE=%LLVM_PATH%\INCLUDE;%INCLUDE%"`,
+		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
+		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
+		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`,
 		`)`,
 	)
 }

@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/ricochhet/simpledownload"
 	"github.com/tidwall/gjson"
 )
@@ -51,7 +52,7 @@ func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 	}
 
 	for _, installer := range installers {
-		err := extractMSI(flags, installer, flags.Output)
+		err := internal.ExtractMSI(flags, installer, flags.Output)
 		if err != nil {
 			return err
 		}

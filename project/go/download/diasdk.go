@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/portablebuildtools/internal"
 	acopy "github.com/ricochhet/portablebuildtools/thirdparty/copy"
 	"github.com/ricochhet/simpledownload"
 	"github.com/tidwall/gjson"
@@ -30,7 +31,7 @@ func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, f
 		}
 	}
 
-	if err := extractMSI(flags, filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
+	if err := internal.ExtractMSI(flags, filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
 		return err
 	}
 

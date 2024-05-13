@@ -5,6 +5,7 @@ import (
 
 	"github.com/ricochhet/portablebuildtools/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/ricochhet/simplezip"
 )
 
@@ -13,7 +14,7 @@ func main() {
 	msvcPackages := aflag.SetPackages(flags, flags.SetMSVCPackages, aflag.MSVCPackages(flags))
 	sdkPackages := aflag.SetPackages(flags, flags.SetWinSDKPackages, aflag.WinSDKPackages(flags))
 
-	cwd, err := download.CreateDirectories(flags)
+	cwd, err := internal.CreateDirectories(flags)
 	if err != nil {
 		panic(err)
 	}
@@ -25,7 +26,7 @@ func main() {
 	msvcPackages, sdkPackages = aflag.AppendOptionals(msvcPackages, sdkPackages, flags)
 
 	if flags.RewriteVars {
-		if err := download.WriteVars(flags); err != nil {
+		if err := internal.WriteVars(flags); err != nil {
 			panic(err)
 		}
 
@@ -46,7 +47,7 @@ func main() {
 		panic(err)
 	}
 
-	msvcv, err := download.GetMSVCVersion(flags)
+	msvcv, err := internal.GetMSVCVersion(flags)
 	if err != nil {
 		panic(err)
 	}
@@ -64,15 +65,15 @@ func main() {
 		panic(err)
 	}
 
-	if err := download.RemoveVCTipsTelemetry(flags); err != nil {
+	if err := internal.RemoveVCTipsTelemetry(flags); err != nil {
 		panic(err)
 	}
 
-	if err := download.CleanHostDirectory(flags); err != nil {
+	if err := internal.CleanHostDirectory(flags); err != nil {
 		panic(err)
 	}
 
-	if err := download.WriteVars(flags); err != nil {
+	if err := internal.WriteVars(flags); err != nil {
 		panic(err)
 	}
 

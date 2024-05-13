@@ -24,7 +24,7 @@ func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, f
 			sha256 := pkg.Get("sha256").String()
 			fileName := pkg.Get("fileName").String()
 
-			if err := simpledownload.File(url, sha256, fileName, flags.DownloadsDIA); err != nil {
+			if err := simpledownload.FileValidated(url, sha256, fileName, flags.DownloadsDIA); err != nil {
 				fmt.Println("Error downloading DIA SDK package:", err)
 				continue
 			}

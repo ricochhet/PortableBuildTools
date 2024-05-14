@@ -1,7 +1,11 @@
 github.com/ricochhet/simpledownload v0.0.0-20240513042154-6f58b8f66680 h1:ZGNi2NdZ14eVkx/8wVPM8YPYOHjaffX7lEaBEzMlGSU=
 github.com/ricochhet/simpledownload v0.0.0-20240513042154-6f58b8f66680/go.mod h1:ZXYGWltrBqs1ntYzDNDhDciQvOONLrBv0K71yPDK7OE=
+github.com/ricochhet/simpledownload v0.0.0-20240514234720-00e9bdf43a1e h1:2x2atsrSUS68vw4yBKRH43oHB7TPJEE02pJLWzHr/q4=
+github.com/ricochhet/simpledownload v0.0.0-20240514234720-00e9bdf43a1e/go.mod h1:ZXYGWltrBqs1ntYzDNDhDciQvOONLrBv0K71yPDK7OE=
 github.com/ricochhet/simplezip v0.0.0-20240512230208-2c3b589e9d97 h1:O8EEhxhBco+YKhAWZZX5XrYUFzapasIFXNnaDfwNFOQ=
 github.com/ricochhet/simplezip v0.0.0-20240512230208-2c3b589e9d97/go.mod h1:wlShuUe9Fglkxn2XuwaATQ0TfaK668QZr/ViXgQ01/U=
+github.com/ricochhet/simplezip v0.0.0-20240514234612-7ac8ba7e43fb h1:W4gf0Wsu+eZxpC4EWkicUAJmvs5N77bSFl9jArTC+ZM=
+github.com/ricochhet/simplezip v0.0.0-20240514234612-7ac8ba7e43fb/go.mod h1:wlShuUe9Fglkxn2XuwaATQ0TfaK668QZr/ViXgQ01/U=
 github.com/tidwall/gjson v1.17.1 h1:wlYEnwqAHgzmhNUFfw7Xalt2JzQvsMx2Se4PcoFCT/U=
 github.com/tidwall/gjson v1.17.1/go.mod h1:/wbyibRr2FHMks5tjHJ5F8dMZh3AcwJEMf5vlfC0lxk=
 github.com/tidwall/match v1.1.1 h1:+Ho715JplO36QYgwN9PGYNhgZvoUSc9X2c80KVTi+GA=

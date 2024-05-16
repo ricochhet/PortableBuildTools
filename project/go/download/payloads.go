@@ -40,6 +40,10 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 			sha256 := gjson.Get(pkg.String(), "sha256").String()
 			fileName := gjson.Get(pkg.String(), "fileName").String()
 
+			if fileName == "payload.vsix" {
+				fileName = sha256 + ".vsix"
+			}
+
 			if err := simpledownload.FileValidated(url, sha256, fileName, flags.Downloads); err != nil {
 				fmt.Println("Error downloading MSVC package:", err)
 				continue

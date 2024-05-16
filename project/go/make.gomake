@@ -1,0 +1,36 @@
+fmt() {
+    gofumpt -l -w .
+}
+
+lint() {
+    golangci-lint run  
+}
+
+test() {
+    go test ./...
+}
+
+build() {
+    go build -o PortableBuildTools.exe -trimpath -ldflags "-w -s"
+}
+
+deadcode() {
+    deadcode github.com/ricochhet/portablebuildtools
+}
+
+prebuild() {
+    @fmt
+    @lint
+    @test
+    @deadcode
+}
+
+build_all() {
+    @prebuild
+    @build
+}
+
+build_light() {
+    @test
+    @build
+}

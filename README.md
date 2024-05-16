@@ -10,7 +10,9 @@ Create standalone instances of VS Build Tools.
 - Rust 1.78 or later.
 
 ## Usage
-- Run `build.bat` under `project/`.
+- Build [gomake](https://github.com/ricochhet/gomake) from source.
+    - Or manually invoke the necessary commands.
+- Run `gomake build` from the `project/` folder.
 - Run `PortableBuildTools.exe` found under `project/build/`.
 
 ## Testing

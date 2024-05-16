@@ -1,0 +1,20 @@
+build_go() {
+	~./go/
+	gomake build_light
+}
+
+build_rust() {
+	~./rust/
+	gomake build
+}
+
+copy_executables() {
+	copy go/PortableBuildTools.exe build/PortableBuildTools.exe
+	copy rust/target/release/MSIExtract.exe build/MSIExtract.exe
+}
+
+build() {
+	@build_go
+	@build_rust
+	@copy_executables
+}

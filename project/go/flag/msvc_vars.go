@@ -22,27 +22,21 @@ import (
 	"strings"
 )
 
-func lines(lines ...string) string {
-	return strings.Join(lines, "\n")
-}
-
 //nolint:lll // constructing batch scripts.
-func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
-	return lines(
+func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
+	base := []string{
 		`@echo off`,
 		"",
 		`SET "ROOT=%~dp0"`,
 		`SET "VSINSTALLDIR=%ROOT%\"`,
 		`SET "VCINSTALLDIR=%VSINSTALLDIR%VC\"`,
 		`SET "VS140COMNTOOLS=%VSINSTALLDIR%Common7\Tools\"`,
-		`SET "UCRTVersion=`+sdkVersion+`"`,
+		`SET "UCRTVersion=` + sdkVersion + `"`,
 		`SET "WindowsSdkDir=%VSINSTALLDIR%Windows Kits\10\"`,
 		`SET "UniversalCRTSdkDir=%WindowsSdkDir%"`,
-		`SET "WindowsSDKVersion=`+sdkVersion+`\"`,
-		`SET "WindowsSDKLibVersion=`+sdkVersion+`\"`,
-		`SET "WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\10\BIN\%WindowsSDKVersion%`+targetA+`\"`,
-		`SET "VSSPECTRELIBS=false"`,
-		`SET "VSLLVMCLANG=false"`,
+		`SET "WindowsSDKVersion=` + sdkVersion + `\"`,
+		`SET "WindowsSDKLibVersion=` + sdkVersion + `\"`,
+		`SET "WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\10\BIN\%WindowsSDKVersion%` + targetA + `\"`,
 		"",
 		`SET "LIB="`,
 		`SET "INCLUDE="`,
@@ -51,66 +45,72 @@ func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string) stri
 		`@if exist "%VSINSTALLDIR%Common7\Tools" set "PATH=%VSINSTALLDIR%Common7\Tools;%PATH%"`,
 		`@if exist "%VSINSTALLDIR%Common7\IDE" set "PATH=%VSINSTALLDIR%Common7\IDE;%PATH%"`,
 		`@if exist "%VCINSTALLDIR%VCPackages" set "PATH=%VCINSTALLDIR%VCPackages;%PATH%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\BIN\Host`+host+`\`+targetA+`" set "PATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\BIN\Host`+host+`\`+targetA+`;%PATH%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\BIN\Host` + host + `\` + targetA + `" set "PATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\BIN\Host` + host + `\` + targetA + `;%PATH%"`,
 		"",
 		`@if not "%UCRTVersion%" == "" @set "INCLUDE=%UniversalCRTSdkDir%include\%UCRTVersion%\ucrt;%INCLUDE%"`,
-		`@if not "%UCRTVersion%" == "" @set "LIB=%UniversalCRTSdkDir%lib\%UCRTVersion%\ucrt\`+targetA+`;%LIB%"`,
+		`@if not "%UCRTVersion%" == "" @set "LIB=%UniversalCRTSdkDir%lib\%UCRTVersion%\ucrt\` + targetA + `;%LIB%"`,
 		"",
-		`@if not "%WindowsSdkDir%" == "" @set "PATH=%WindowsSdkDir%BIN\`+sdkVersion+`\`+targetA+`;%WindowsSdkDir%BIN\`+sdkVersion+`\`+targetB+`;%PATH%"`,
+		`@if not "%WindowsSdkDir%" == "" @set "PATH=%WindowsSdkDir%BIN\` + sdkVersion + `\` + targetA + `;%WindowsSdkDir%BIN\` + sdkVersion + `\` + targetB + `;%PATH%"`,
 		`@if not "%WindowsSdkDir%" == "" @set "INCLUDE=%WindowsSdkDir%include\%WindowsSDKVersion%shared;%WindowsSdkDir%include\%WindowsSDKVersion%um;%WindowsSdkDir%include\%WindowsSDKVersion%winrt;%INCLUDE%"`,
-		`@if not "%WindowsSdkDir%" == "" @set "LIB=%WindowsSdkDir%lib\%WindowsSDKLibVersion%um\`+targetA+`;%LIB%"`,
+		`@if not "%WindowsSdkDir%" == "" @set "LIB=%WindowsSdkDir%lib\%WindowsSDKLibVersion%um\` + targetA + `;%LIB%"`,
 		`@if not "%WindowsSdkDir%" == "" @set "LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\Microsoft.VCLibs\14.0\References\CommonConfiguration\neutral;%LIBPATH%"`,
 		"",
 		`@if not "%WindowsSDK_ExecutablePath_x64%" == "" @set "PATH=%WindowsSDK_ExecutablePath_x64%;%PATH%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%LIB%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store" set "LIB=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store;%LIB%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\INCLUDE;%INCLUDE%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\INCLUDE;%INCLUDE%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\INCLUDE;%INCLUDE%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\INCLUDE;%INCLUDE%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`;%LIB%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`;%LIB%"`,
-		`if "%VSSPECTRELIBS%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIB%"`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIB%"`,
-		`)`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `" set "LIB=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `;%LIB%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `" set "LIB=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `;%LIB%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`;%LIBPATH%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`;%LIBPATH%"`,
-		`if "%VSSPECTRELIBS%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
-		`)`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `;%LIBPATH%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `;%LIBPATH%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store\references;%LIBPATH%"`,
-		"",
-		`if "%VSLLVMCLANG%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
-		`  @if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
-		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
-		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
-		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`,
-		`)`,
-	)
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store;%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store\references;%LIBPATH%"`,
+	}
+
+	if flags.DownloadSpectreLibs {
+		base = append(base, "",
+			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIB%"`,
+			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIB%"`,
+		)
+
+		base = append(base, "",
+			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
+			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
+		)
+	}
+
+	if flags.DownloadLLVMClang {
+		base = append(base, "",
+			`@if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
+			`@if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
+			`@if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
+			`@if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
+			`@if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`,
+		)
+	}
+
+	return strings.Join(base, "\n")
 }
 
 //nolint:lll // constructing batch scripts.
-func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) string {
-	return lines(
+func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
+	base := []string{
 		`@echo off`,
 		"",
 		`SET "ROOT=%~dp0"`,
 		`SET "VSINSTALLDIR=%ROOT%\"`,
 		`SET "VCINSTALLDIR=%VSINSTALLDIR%VC\"`,
 		`SET "VS140COMNTOOLS=%VSINSTALLDIR%Common7\Tools\"`,
-		`SET "UCRTVersion=`+sdkVersion+`"`,
+		`SET "UCRTVersion=` + sdkVersion + `"`,
 		`SET "WindowsSdkDir=%VSINSTALLDIR%Windows Kits\10\"`,
 		`SET "UniversalCRTSdkDir=%WindowsSdkDir%"`,
-		`SET "WindowsSDKVersion=`+sdkVersion+`\"`,
-		`SET "WindowsSDKLibVersion=`+sdkVersion+`\"`,
-		`SET "WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\10\BIN\%WindowsSDKVersion%`+targetA+`\"`,
-		`SET "VSSPECTRELIBS=false"`,
-		`SET "VSLLVMCLANG=false"`,
+		`SET "WindowsSDKVersion=` + sdkVersion + `\"`,
+		`SET "WindowsSDKLibVersion=` + sdkVersion + `\"`,
+		`SET "WindowsSDK_ExecutablePath_x64=%VSINSTALLDIR%Windows Kits\10\BIN\%WindowsSDKVersion%` + targetA + `\"`,
 		"",
 		`SET "LIB="`,
 		`SET "INCLUDE="`,
@@ -119,46 +119,53 @@ func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string) stri
 		`@if exist "%VSINSTALLDIR%Common7\Tools" set "PATH=%VSINSTALLDIR%Common7\Tools;%PATH%"`,
 		`@if exist "%VSINSTALLDIR%Common7\IDE" set "PATH=%VSINSTALLDIR%Common7\IDE;%PATH%"`,
 		`@if exist "%VCINSTALLDIR%VCPackages" set "PATH=%VCINSTALLDIR%VCPackages;%PATH%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\BIN\Host`+host+`\`+targetB+`" set "PATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\BIN\Host`+host+`\`+targetB+`;%PATH%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\BIN\Host`+host+`\`+targetA+`" set "PATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\BIN\Host`+host+`\`+targetA+`;%PATH%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\BIN\Host` + host + `\` + targetB + `" set "PATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\BIN\Host` + host + `\` + targetB + `;%PATH%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\BIN\Host` + host + `\` + targetA + `" set "PATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\BIN\Host` + host + `\` + targetA + `;%PATH%"`,
 		"",
 		`@if not "%UCRTVersion%" == "" @set "INCLUDE=%UniversalCRTSdkDir%include\%UCRTVersion%\ucrt;%INCLUDE%"`,
-		`@if not "%UCRTVersion%" == "" @set "LIB=%UniversalCRTSdkDir%lib\%UCRTVersion%\ucrt\`+targetA+`;%LIB%"`,
+		`@if not "%UCRTVersion%" == "" @set "LIB=%UniversalCRTSdkDir%lib\%UCRTVersion%\ucrt\` + targetA + `;%LIB%"`,
 		"",
-		`@if not "%WindowsSdkDir%" == "" @set "PATH=%WindowsSdkDir%BIN\`+sdkVersion+`\`+targetA+`;%WindowsSdkDir%BIN\`+sdkVersion+`\`+targetA+`;%PATH%"`,
+		`@if not "%WindowsSdkDir%" == "" @set "PATH=%WindowsSdkDir%BIN\` + sdkVersion + `\` + targetA + `;%WindowsSdkDir%BIN\` + sdkVersion + `\` + targetA + `;%PATH%"`,
 		`@if not "%WindowsSdkDir%" == "" @set "INCLUDE=%WindowsSdkDir%include\%WindowsSDKVersion%shared;%WindowsSdkDir%include\%WindowsSDKVersion%um;%WindowsSdkDir%include\%WindowsSDKVersion%winrt;%INCLUDE%"`,
-		`@if not "%WindowsSdkDir%" == "" @set "LIB=%WindowsSdkDir%lib\%WindowsSDKLibVersion%um\`+targetA+`;%LIB%"`,
+		`@if not "%WindowsSdkDir%" == "" @set "LIB=%WindowsSdkDir%lib\%WindowsSDKLibVersion%um\` + targetA + `;%LIB%"`,
 		`@if not "%WindowsSdkDir%" == "" @set "LIBPATH=%WindowsLibPath%;%ExtensionSDKDir%\Microsoft.VCLibs\14.0\References\CommonConfiguration\neutral;%LIBPATH%"`,
 		"",
 		`@if not "%WindowsSDK_ExecutablePath_x64%" == "" @set "PATH=%WindowsSDK_ExecutablePath_x64%;%PATH%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\INCLUDE;%INCLUDE%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\INCLUDE;%INCLUDE%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\INCLUDE;%INCLUDE%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\INCLUDE" set "INCLUDE=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\INCLUDE;%INCLUDE%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`;%LIB%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`;%LIB%"`,
-		`if "%VSSPECTRELIBS%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIB%"`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIB%"`,
-		`)`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `" set "LIB=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `;%LIB%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `" set "LIB=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `;%LIB%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%LIB%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store" set "LIB=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store;%LIB%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\`+targetA+`;%LIBPATH%"`,
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`;%LIBPATH%"`,
-		`if "%VSSPECTRELIBS%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
-		`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
-		`)`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\ATLMFC\LIB\` + targetA + `;%LIBPATH%"`,
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `;%LIBPATH%"`,
 		"",
-		`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store;%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\`+targetA+`\store\references;%LIBPATH%"`,
-		"",
-		`if "%VSLLVMCLANG%" == "true" (`,
-		`  @if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
-		`  @if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
-		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
-		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
-		`  @if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`,
-		`)`,
-	)
+		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store;%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store\references;%LIBPATH%"`,
+	}
+
+	if flags.DownloadSpectreLibs {
+		base = append(base, "",
+			`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIB%"`,
+			`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIB%"`,
+		)
+
+		base = append(base, "",
+			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
+			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIBPATH%"`,
+		)
+	}
+
+	if flags.DownloadLLVMClang {
+		base = append(base, "",
+			`@if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
+			`@if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
+			`@if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
+			`@if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
+			`@if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`)
+	}
+
+	return strings.Join(base, "\n")
 }

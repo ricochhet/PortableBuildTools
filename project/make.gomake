@@ -9,8 +9,8 @@ build_rust() {
 }
 
 copy_executables() {
-	copy go/PortableBuildTools.exe build/PortableBuildTools.exe
-	copy rust/target/release/MSIExtract.exe build/MSIExtract.exe
+	copy go\PortableBuildTools.exe build\PortableBuildTools.exe
+	copy rust\target\release\MSIExtract.exe build\MSIExtract.exe
 }
 
 build() {

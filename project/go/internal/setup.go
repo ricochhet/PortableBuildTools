@@ -76,9 +76,9 @@ func WriteVars(flags *aflag.Flags) error {
 }
 
 func x64(msvcv, sdkv, targetA, targetB string, flags *aflag.Flags) []byte {
-	return []byte(aflag.NewMSVCX64Vars(msvcv, sdkv, targetA, targetB, flags.Host))
+	return []byte(aflag.NewMSVCX64Vars(msvcv, sdkv, targetA, targetB, flags.Host, flags))
 }
 
 func x86(msvcv, sdkv, targetA, targetB string, flags *aflag.Flags) []byte {
-	return []byte(aflag.NewMSVCX86Vars(msvcv, sdkv, targetA, targetB, flags.Host))
+	return []byte(aflag.NewMSVCX86Vars(msvcv, sdkv, targetA, targetB, flags.Host, flags))
 }

@@ -53,7 +53,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 
 			fmt.Println("Extracting: ", fpath)
 
-			if err := vsix(fpath, flags.Output); err != nil {
+			if err := extractVsix(fpath, flags.Output); err != nil {
 				return err
 			}
 
@@ -64,7 +64,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 	return nil
 }
 
-func vsix(fpath, destpath string) error {
+func extractVsix(fpath, destpath string) error {
 	if !strings.HasSuffix(fpath, ".vsix") {
 		return errNotVsixFile
 	}

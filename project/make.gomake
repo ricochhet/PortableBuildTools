@@ -1,10 +1,10 @@
 build_go() {
-	~./go/
-	gomake build_light
+	@(cd:"./go/")
+	gomake build_nochecks
 }
 
 build_rust() {
-	~./rust/
+	@(cd:"./rust/")
 	gomake build
 }
 

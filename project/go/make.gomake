@@ -30,7 +30,7 @@ build_all() {
     @build
 }
 
-build_light() {
+build_nochecks() {
     @test
     @build
 }

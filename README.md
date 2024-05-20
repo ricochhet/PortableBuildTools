@@ -8,12 +8,12 @@ Create standalone instances of VS Build Tools.
 # Requirements
 - Go 1.22 or later.
 - Rust 1.78 or later.
+- GNU Make 4.4.1 or later.
 
-## Usage
-- Build [gomake](https://github.com/ricochhet/gomake) from source.
-    - Or manually invoke the necessary commands.
-- Run `gomake build` from the `project/` folder.
-- Run `PortableBuildTools.exe` found under `project/build/`.
+## Building
+- Run `make all`. Output is located in `build/`
+- Run `portablebuildtools.exe` found under `build/`.
+    - Use `portablebuildtools -h` to view a list of commands.
 
 ## Testing
 Rudimentary testing is located in `tests/*`
@@ -24,8 +24,6 @@ Rudimentary testing is located in `tests/*`
 ## Information
 - The default download options include (almost) everything you need to build and run the majority of C/C++ applications and libraries.
 - Use [session.log](./session.log) to view all files downloaded with the `microsoft.vc.{msvc_ver}, microsoft.visualcpp, microsoft.vs, microsoft.visualstudio` prefixes.
-    - Set `DOWNLOAD_ALL` to `True` if you want to download everything with the stated prefixes. ~20GB
-    - Uses `python/downloader.py` script.
 - A modified version of ([MSIExtract](https://github.com/Super-Pizza/MSIExtract)) is used over options such as `msiexec` or `lessmsi` due to issues with how arguments and spaces in paths are handled with the alternatives.
 
 ### Alternatives

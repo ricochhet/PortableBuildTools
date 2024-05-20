@@ -78,7 +78,7 @@ func init() {
 	flag.StringVar(&flags.ManifestURL, "manifest-url", defaults.ManifestURL, "Specify VS manifest url")
 	flag.StringVar(&flags.ManifestPreviewURL, "manifest-preview-url", defaults.ManifestPreviewURL, "Specify VS preview manifest url")
 	flag.BoolVar(&flags.RewriteVars, "rewrite-vars", defaults.RewriteVars, "Rewrite environment variable batch scripts")
-	flag.BoolVar(&flags.MSIExtractVerbose, "msiexec-verbose", defaults.MSIExtractVerbose, "Verbose output for MSIExtract")
+	flag.BoolVar(&flags.MSIExtractVerbose, "msiextract-verbose", defaults.MSIExtractVerbose, "Verbose output for MSIExtract")
 	flag.BoolVar(&flags.CreateZip, "zip", defaults.CreateZip, "Create zip archive after download")
 	flag.Parse()
 }

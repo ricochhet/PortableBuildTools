@@ -26,9 +26,17 @@ import (
 
 var errMSIExtractMissing = errors.New("MSIExtract tool was not found")
 
-func ExtractMSI(flags *aflag.Flags, args ...string) error {
+func FindMSIExtract() error {
 	if exists, err := aflag.IsFile("./msiextract.exe"); err != nil || !exists {
 		return errMSIExtractMissing
+	}
+
+	return nil
+}
+
+func ExtractMSI(flags *aflag.Flags, args ...string) error {
+	if err := FindMSIExtract(); err != nil {
+		return err
 	}
 
 	if flags.MSIExtractVerbose {

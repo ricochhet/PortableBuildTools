@@ -22,19 +22,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: "stable"
-          cache-dependency-path: project/go/go.sum
 
       - name: Build
-        working-directory: project/go
         run: |
           chmod +x build.sh
           ./build.sh
       - name: Test
-        working-directory: project/go
         run: go test -race -v ./...
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          path: project/go/PortableBuildTools*
+          path: PortableBuildTools*
           name: ${{ github.run_number }}

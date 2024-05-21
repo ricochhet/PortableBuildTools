@@ -37,7 +37,7 @@ func FindMSIExtract() (string, error) {
 		executable = "msiextract"
 	}
 
-	if _, err := aflag.IsFile(filepath.Join("./", executable)); err == nil {
+	if exists, err := aflag.IsFile(filepath.Join("./", executable)); err == nil && exists {
 		return filepath.Join("./", executable), nil
 	}
 

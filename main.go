@@ -29,7 +29,7 @@ import (
 
 //nolint:cyclop // composed of err checking. . .not complex
 func main() {
-	if err := internal.FindMSIExtract(); err != nil {
+	if _, err := internal.FindMSIExtract(); err != nil {
 		panic(err)
 	}
 

@@ -20,29 +20,44 @@ package internal
 
 import (
 	"errors"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
 var errMSIExtractMissing = errors.New("MSIExtract tool was not found")
 
-func FindMSIExtract() error {
-	if exists, err := aflag.IsFile("./msiextract.exe"); err != nil || !exists {
-		return errMSIExtractMissing
+func FindMSIExtract() (string, error) {
+	var executable string
+	if runtime.GOOS == "windows" {
+		executable = "msiextract.exe"
+	} else {
+		executable = "msiextract"
 	}
 
-	return nil
+	if _, err := aflag.IsFile(filepath.Join("./", executable)); err == nil {
+		return filepath.Join("./", executable), nil
+	}
+
+	if lookPath, err := exec.LookPath(executable); err == nil {
+		return lookPath, nil
+	}
+
+	return "", errMSIExtractMissing
 }
 
 func ExtractMSI(flags *aflag.Flags, args ...string) error {
-	if err := FindMSIExtract(); err != nil {
+	path, err := FindMSIExtract()
+	if err != nil {
 		return err
 	}
 
 	if flags.MSIExtractVerbose {
 		args = append(args, "-s")
-		return Exec("./msiextract.exe", args...)
+		return Exec(path, args...)
 	}
 
-	return Exec("./msiextract.exe", args...)
+	return Exec(path, args...)
 }

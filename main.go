@@ -27,7 +27,7 @@ import (
 	"github.com/ricochhet/simplezip"
 )
 
-//nolint:cyclop // composed of err checking. . .not complex
+//nolint:cyclop,gocyclo // wintfix
 func main() {
 	if _, err := internal.FindMSIExtract(); err != nil {
 		panic(err)

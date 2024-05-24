@@ -24,34 +24,34 @@ func AppendOptionals(msvcPackages, sdkPackages []string, flags *Flags) ([]string
 	msvcAppend := msvcPackages
 	sdkAppend := sdkPackages
 
-	if flags.DownloadLLVMClang {
-		msvcAppend = append(msvcAppend, LLVMClangPackages()...)
+	if flags.LlvmClang {
+		msvcAppend = append(msvcAppend, LlvmClangPackages()...)
 	}
 
-	if flags.DownloadCmake {
+	if flags.Cmake {
 		msvcAppend = append(msvcAppend, CmakePackages()...)
 	}
 
-	if flags.DownloadUnitTest {
+	if flags.UnitTest {
 		msvcAppend = append(msvcAppend, UnitTestPackages()...)
 	}
 
-	if flags.DownloadARMTargets {
-		msvcAppend = append(msvcAppend, MSVCARMPackages(flags)...)
-		sdkAppend = append(sdkAppend, WinSDKARMPackages(flags)...)
+	if flags.ArmTargets {
+		msvcAppend = append(msvcAppend, MsvcArmPackages(flags)...)
+		sdkAppend = append(sdkAppend, WinSdkArmPackages(flags)...)
 	}
 
-	if flags.DownloadSpectreLibs {
-		msvcAppend = append(msvcAppend, MSVCSpectrePackages(flags)...)
-		if flags.DownloadARMTargets {
-			msvcAppend = append(msvcAppend, MSVCARMSpectrePackages(flags)...)
+	if flags.SpectreLibs {
+		msvcAppend = append(msvcAppend, MsvcSpectrePackages(flags)...)
+		if flags.ArmTargets {
+			msvcAppend = append(msvcAppend, MsvcArmSpectrePackages(flags)...)
 		}
 	}
 
 	return msvcAppend, sdkAppend
 }
 
-func MSVCPackages(flags *Flags) []string {
+func MsvcPackages(flags *Flags) []string {
 	return []string{
 		// MSVC vcvars
 		"microsoft.visualstudio.vc.vcvars",
@@ -101,7 +101,7 @@ func MSVCPackages(flags *Flags) []string {
 	}
 }
 
-func MSVCARMPackages(flags *Flags) []string {
+func MsvcArmPackages(flags *Flags) []string {
 	return []string{
 		fmt.Sprintf("microsoft.visualcpp.tools.host%s.target%s", flags.Host, flags.Targetarm),
 		fmt.Sprintf("microsoft.visualcpp.tools.host%s.target%s", flags.Host, flags.Targetarm64),
@@ -118,21 +118,21 @@ func MSVCARMPackages(flags *Flags) []string {
 	}
 }
 
-func MSVCSpectrePackages(flags *Flags) []string {
+func MsvcSpectrePackages(flags *Flags) []string {
 	return []string{
 		fmt.Sprintf("microsoft.vc.%s.crt.%s.desktop.spectre.base", flags.MsvcVer, flags.Targetx64),
 		fmt.Sprintf("microsoft.vc.%s.crt.%s.desktop.spectre.base", flags.MsvcVer, flags.Targetx86),
 	}
 }
 
-func MSVCARMSpectrePackages(flags *Flags) []string {
+func MsvcArmSpectrePackages(flags *Flags) []string {
 	return []string{
 		fmt.Sprintf("microsoft.vc.%s.crt.%s.desktop.spectre.base", flags.MsvcVer, flags.Targetarm),
 		fmt.Sprintf("microsoft.vc.%s.crt.%s.desktop.spectre.base", flags.MsvcVer, flags.Targetarm64),
 	}
 }
 
-func WinSDKPackages(flags *Flags) []string {
+func WinSdkPackages(flags *Flags) []string {
 	return []string{
 		// Windows SDK tools (like rc.exe & mt.exe)
 		fmt.Sprintf("Installers\\Windows SDK for Windows Store Apps Tools-%s_en-us.msi", flags.Targetx86),
@@ -156,7 +156,7 @@ func WinSDKPackages(flags *Flags) []string {
 	}
 }
 
-func WinSDKARMPackages(flags *Flags) []string {
+func WinSdkArmPackages(flags *Flags) []string {
 	return []string{
 		fmt.Sprintf("Windows SDK Desktop Headers %s-%s_en-us.msi", flags.Targetarm64, flags.Targetx86),
 		fmt.Sprintf("Windows SDK Desktop Headers %s-%s_en-us.msi", flags.Targetarm, flags.Targetx86),
@@ -167,7 +167,7 @@ func WinSDKARMPackages(flags *Flags) []string {
 	}
 }
 
-func LLVMClangPackages() []string {
+func LlvmClangPackages() []string {
 	return []string{
 		"microsoft.visualstudio.vc.llvm.base",
 		"microsoft.visualstudio.vc.llvm.clang",

@@ -27,12 +27,12 @@ import (
 
 var errNoVersionInDirectory = errors.New("no version in directory")
 
-func GetMSVCVersion(flags *aflag.Flags) (string, error) {
-	return getVersion(filepath.Join(flags.Output, "VC", "Tools", "MSVC"))
+func GetMsvcVersion(flags *aflag.Flags) (string, error) {
+	return getVersion(filepath.Join(flags.Dest, "VC", "Tools", "MSVC"))
 }
 
-func GetWinSDKVersion(flags *aflag.Flags) (string, error) {
-	return getVersion(filepath.Join(flags.Output, "Windows Kits", "10", "bin"))
+func GetWinSdkVersion(flags *aflag.Flags) (string, error) {
+	return getVersion(filepath.Join(flags.Dest, "Windows Kits", "10", "bin"))
 }
 
 func getVersion(apath string) (string, error) {

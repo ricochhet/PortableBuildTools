@@ -23,7 +23,7 @@ import (
 )
 
 //nolint:lll // constructing batch scripts.
-func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
+func NewMsvcX64Environ(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
 	base := []string{
 		`@echo off`,
 		"",
@@ -71,7 +71,7 @@ func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flag
 		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store;%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store\references;%LIBPATH%"`,
 	}
 
-	if flags.DownloadSpectreLibs {
+	if flags.SpectreLibs {
 		base = append(base, "",
 			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIB%"`,
 			`@if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIB%"`,
@@ -83,7 +83,7 @@ func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flag
 		)
 	}
 
-	if flags.DownloadLLVMClang {
+	if flags.LlvmClang {
 		base = append(base, "",
 			`@if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
 			`@if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,
@@ -97,7 +97,7 @@ func NewMSVCX64Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flag
 }
 
 //nolint:lll // constructing batch scripts.
-func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
+func NewMsvcX86Environ(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
 	base := []string{
 		`@echo off`,
 		"",
@@ -146,7 +146,7 @@ func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flag
 		`@if exist "%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store" set "LIBPATH=%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store;%VCINSTALLDIR%\Tools\MSVC\` + msvcVersion + `\LIB\` + targetA + `\store\references;%LIBPATH%"`,
 	}
 
-	if flags.DownloadSpectreLibs {
+	if flags.SpectreLibs {
 		base = append(base, "",
 			`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\ATLMFC\LIB\SPECTRE\`+targetA+`;%LIB%"`,
 			`  @if exist "%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`" set "LIB=%VCINSTALLDIR%\Tools\MSVC\`+msvcVersion+`\LIB\SPECTRE\`+targetA+`;%LIB%"`,
@@ -158,7 +158,7 @@ func NewMSVCX86Vars(msvcVersion, sdkVersion, targetA, targetB, host string, flag
 		)
 	}
 
-	if flags.DownloadLLVMClang {
+	if flags.LlvmClang {
 		base = append(base, "",
 			`@if exist "%VCINSTALLDIR%\Tools\LLVM\`+targetA+`" set "LLVM_PATH=%VCINSTALLDIR%\Tools\LLVM\`+targetA+`"`,
 			`@if exist "%LLVM_PATH%\BIN" set "PATH=%LLVM_PATH%\BIN;%PATH%"`,

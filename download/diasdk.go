@@ -32,7 +32,7 @@ import (
 
 var errUnknownHostArch = errors.New("unknown host architecture")
 
-func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, flags *aflag.Flags) error {
+func GetDiaSdk(payloads []string, destx64, destx86, destarm, destarm64 string, flags *aflag.Flags) error {
 	msdia140dll := "msdia140.dll"
 
 	for _, payload := range payloads {
@@ -42,14 +42,14 @@ func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, f
 			sha256 := pkg.Get("sha256").String()
 			fileName := pkg.Get("fileName").String()
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.DownloadsDIA); err != nil {
+			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpDia); err != nil {
 				fmt.Println("Error downloading DIA SDK package:", err)
 				continue
 			}
 		}
 	}
 
-	if err := internal.ExtractMSI(flags, filepath.Join(flags.DownloadsDIA, "VC_diasdk.msi"), flags.DownloadsDIA); err != nil {
+	if err := internal.ExtractMsi(flags, filepath.Join(flags.TmpDia, "VC_diasdk.msi"), flags.TmpDia); err != nil {
 		return err
 	}
 
@@ -64,33 +64,33 @@ func GetDIASDK(payloads []string, destx64, destx86, destarm, destarm64 string, f
 		return errUnknownHostArch
 	}
 
-	paths := []copyDIAPath{
+	paths := []copyDiaPath{
 		{dest: filepath.Join(destx64, msdia), flags: flags},
 		{dest: filepath.Join(destx86, msdia), flags: flags},
 	}
 
-	if flags.DownloadARMTargets {
+	if flags.ArmTargets {
 		paths = append(paths,
-			copyDIAPath{dest: filepath.Join(destarm, msdia), flags: flags},
-			copyDIAPath{dest: filepath.Join(destarm64, msdia), flags: flags},
+			copyDiaPath{dest: filepath.Join(destarm, msdia), flags: flags},
+			copyDiaPath{dest: filepath.Join(destarm64, msdia), flags: flags},
 		)
 	}
 
-	if err := copyMSDIADllToPaths(msdia, paths); err != nil {
+	if err := copyMsdiaDllToPaths(msdia, paths); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-type copyDIAPath struct {
+type copyDiaPath struct {
 	dest  string
 	flags *aflag.Flags
 }
 
-func copyMSDIADllToPaths(msdia string, paths []copyDIAPath) error {
+func copyMsdiaDllToPaths(msdia string, paths []copyDiaPath) error {
 	for _, path := range paths {
-		if err := copyMSDIADLL(msdia, path.dest, path.flags); err != nil {
+		if err := copyMsdiaDll(msdia, path.dest, path.flags); err != nil {
 			return err
 		}
 	}
@@ -98,6 +98,6 @@ func copyMSDIADllToPaths(msdia string, paths []copyDIAPath) error {
 	return nil
 }
 
-func copyMSDIADLL(msdia, target string, flags *aflag.Flags) error {
-	return acopy.Copy(filepath.Join(flags.DownloadsDIA, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), target)
+func copyMsdiaDll(msdia, target string, flags *aflag.Flags) error {
+	return acopy.Copy(filepath.Join(flags.TmpDia, "Program Files", "Microsoft Visual Studio 14.0", "DIA SDK", "bin", msdia), target)
 }

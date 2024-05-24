@@ -29,26 +29,26 @@ import (
 
 //nolint:cyclop,gocyclo // wintfix
 func main() {
-	if _, err := internal.FindMSIExtract(); err != nil {
+	if _, err := internal.FindMsiExtract(); err != nil {
 		panic(err)
 	}
 
-	msvcPackages := aflag.SetPackages(flags, flags.SetMSVCPackages, aflag.MSVCPackages(flags))
-	sdkPackages := aflag.SetPackages(flags, flags.SetWinSDKPackages, aflag.WinSDKPackages(flags))
+	msvcPackages := aflag.SetPackages(flags, flags.SetMsvcPackages, aflag.MsvcPackages(flags))
+	sdkPackages := aflag.SetPackages(flags, flags.SetWinSdkPackages, aflag.WinSdkPackages(flags))
 
 	cwd, err := internal.CreateDirectories(flags)
 	if err != nil {
 		panic(err)
 	}
 
-	flags.Downloads = filepath.Join(cwd, flags.Downloads)
-	flags.DownloadsCRTD = filepath.Join(cwd, flags.DownloadsCRTD)
-	flags.DownloadsDIA = filepath.Join(cwd, flags.DownloadsDIA)
-	flags.Output = filepath.Join(cwd, flags.Output)
+	flags.TmpPath = filepath.Join(cwd, flags.TmpPath)
+	flags.TmpCrtd = filepath.Join(cwd, flags.TmpCrtd)
+	flags.TmpDia = filepath.Join(cwd, flags.TmpDia)
+	flags.Dest = filepath.Join(cwd, flags.Dest)
 	msvcPackages, sdkPackages = aflag.AppendOptionals(msvcPackages, sdkPackages, flags)
 
-	if flags.RewriteVars {
-		if err := internal.WriteVars(flags); err != nil {
+	if flags.WriteEnvironment {
+		if err := internal.WriteEnvironment(flags); err != nil {
 			panic(err)
 		}
 
@@ -65,29 +65,29 @@ func main() {
 		panic(err)
 	}
 
-	if err := download.GetWinSDK(flags, sdk, sdkPackages); err != nil {
+	if err := download.GetWinSdk(flags, sdk, sdkPackages); err != nil {
 		panic(err)
 	}
 
-	msvcv, err := internal.GetMSVCVersion(flags)
+	msvcv, err := internal.GetMsvcVersion(flags)
 	if err != nil {
 		panic(err)
 	}
 
-	destx64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx64)
-	destx86 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx86)
-	destarm := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm)
-	destarm64 := filepath.Join(flags.Output, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm64)
+	destx64 := filepath.Join(flags.Dest, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx64)
+	destx86 := filepath.Join(flags.Dest, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetx86)
+	destarm := filepath.Join(flags.Dest, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm)
+	destarm64 := filepath.Join(flags.Dest, "VC", "Tools", "MSVC", msvcv, "bin", "Host"+flags.Host, flags.Targetarm64)
 
-	if err := download.GetCRTD(crtd, destx64, destx86, destarm, destarm64, flags); err != nil {
+	if err := download.GetCrtd(crtd, destx64, destx86, destarm, destarm64, flags); err != nil {
 		panic(err)
 	}
 
-	if err := download.GetDIASDK(dia, destx64, destx86, destarm, destarm64, flags); err != nil {
+	if err := download.GetDiaSdk(dia, destx64, destx86, destarm, destarm64, flags); err != nil {
 		panic(err)
 	}
 
-	if err := internal.RemoveVCTipsTelemetry(flags); err != nil {
+	if err := internal.RemoveVcTipsTelemetry(flags); err != nil {
 		panic(err)
 	}
 
@@ -95,12 +95,12 @@ func main() {
 		panic(err)
 	}
 
-	if err := internal.WriteVars(flags); err != nil {
+	if err := internal.WriteEnvironment(flags); err != nil {
 		panic(err)
 	}
 
-	if flags.CreateZip {
-		if err := simplezip.Zip(flags.Output, flags.OutputZip); err != nil {
+	if flags.Zip {
+		if err := simplezip.Zip(flags.Dest, flags.DestZip); err != nil {
 			panic(err)
 		}
 	}

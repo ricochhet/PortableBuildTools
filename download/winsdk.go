@@ -31,7 +31,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []string) error {
+func GetWinSdk(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []string) error {
 	installerPrefix := "Installers\\"
 	installers := []string{}
 	cabinets := []string{}
@@ -43,13 +43,13 @@ func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 
 		if slices.Contains(winsdkpackages, name) {
 			fileName := strings.TrimPrefix(name, installerPrefix)
-			installer, err := simpledownload.FileWithBytesValidated(url, sha256, fileName, flags.Downloads)
+			installer, err := simpledownload.FileWithBytesValidated(url, sha256, fileName, flags.TmpPath)
 			if err != nil { //nolint:wsl // gofumpt conflict
 				fmt.Println("Error downloading Windows SDK package:", err)
 				continue
 			}
 
-			installers = append(installers, filepath.Join(flags.Downloads, fileName))
+			installers = append(installers, filepath.Join(flags.TmpPath, fileName))
 			cabinets = append(cabinets, getMSICabinets(installer)...)
 		}
 	}
@@ -62,7 +62,7 @@ func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 		if slices.Contains(cabinets, strings.TrimPrefix(name, installerPrefix)) {
 			fileName := strings.TrimPrefix(name, installerPrefix)
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.Downloads); err != nil {
+			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
 				fmt.Println("Error downloading cab:", err)
 				continue
 			}
@@ -70,7 +70,7 @@ func GetWinSDK(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 	}
 
 	for _, installer := range installers {
-		err := internal.ExtractMSI(flags, installer, flags.Output)
+		err := internal.ExtractMsi(flags, installer, flags.Dest)
 		if err != nil {
 			return err
 		}

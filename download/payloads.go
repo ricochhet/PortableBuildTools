@@ -44,16 +44,16 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 				fileName = sha256 + ".vsix"
 			}
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.Downloads); err != nil {
+			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
 				fmt.Println("Error downloading MSVC package:", err)
 				continue
 			}
 
-			fpath := filepath.Join(flags.Downloads, fileName)
+			fpath := filepath.Join(flags.TmpPath, fileName)
 
 			fmt.Println("Extracting: ", fpath)
 
-			if err := extractVsix(fpath, flags.Output); err != nil {
+			if err := extractVsix(fpath, flags.Dest); err != nil {
 				return err
 			}
 

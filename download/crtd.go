@@ -31,7 +31,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-func GetCRTD(payloads []string, destx64, destx86, destarm, destarm64 string, flags *aflag.Flags) error {
+func GetCrtd(payloads []string, destx64, destx86, destarm, destarm64 string, flags *aflag.Flags) error {
 	for _, payload := range payloads {
 		packages := gjson.Parse(payload).Array()
 		for _, pkg := range packages {
@@ -39,36 +39,36 @@ func GetCRTD(payloads []string, destx64, destx86, destarm, destarm64 string, fla
 			sha256 := pkg.Get("sha256").String()
 			fileName := pkg.Get("fileName").String()
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.Downloads); err != nil {
+			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
 				fmt.Println("Error downloading CRTD package:", err)
 				continue
 			}
 		}
 	}
 
-	if err := internal.ExtractMSI(flags, filepath.Join(flags.Downloads, "vc_RuntimeDebug.msi"), flags.Downloads); err != nil {
+	if err := internal.ExtractMsi(flags, filepath.Join(flags.TmpPath, "vc_RuntimeDebug.msi"), flags.TmpPath); err != nil {
 		return err
 	}
 
-	dlls, err := os.ReadDir(filepath.Join(flags.Downloads, "System64"))
+	dlls, err := os.ReadDir(filepath.Join(flags.TmpPath, "System64"))
 	if err != nil {
 		return err
 	}
 
 	for _, dll := range dlls {
-		paths := []copyCRTDPath{
+		paths := []copyCrtdPath{
 			{dest: destx64, flags: flags},
 			{dest: destx86, flags: flags},
 		}
 
-		if flags.DownloadARMTargets {
+		if flags.ArmTargets {
 			paths = append(paths,
-				copyCRTDPath{dest: destarm, flags: flags},
-				copyCRTDPath{dest: destarm64, flags: flags},
+				copyCrtdPath{dest: destarm, flags: flags},
+				copyCrtdPath{dest: destarm64, flags: flags},
 			)
 		}
 
-		if err := copyCRTDToPaths(dll, paths); err != nil {
+		if err := copyCrtdToPaths(dll, paths); err != nil {
 			return err
 		}
 	}
@@ -76,14 +76,14 @@ func GetCRTD(payloads []string, destx64, destx86, destarm, destarm64 string, fla
 	return nil
 }
 
-type copyCRTDPath struct {
+type copyCrtdPath struct {
 	dest  string
 	flags *aflag.Flags
 }
 
-func copyCRTDToPaths(dll fs.DirEntry, paths []copyCRTDPath) error {
+func copyCrtdToPaths(dll fs.DirEntry, paths []copyCrtdPath) error {
 	for _, path := range paths {
-		if err := copyCRTD(dll, path.dest, path.flags); err != nil {
+		if err := CopyCrtd(dll, path.dest, path.flags); err != nil {
 			return err
 		}
 	}
@@ -91,6 +91,6 @@ func copyCRTDToPaths(dll fs.DirEntry, paths []copyCRTDPath) error {
 	return nil
 }
 
-func copyCRTD(dirEntry fs.DirEntry, target string, flags *aflag.Flags) error {
-	return acopy.Copy(filepath.Join(filepath.Join(flags.Downloads, "System64"), dirEntry.Name()), filepath.Join(target, dirEntry.Name()))
+func CopyCrtd(dirEntry fs.DirEntry, target string, flags *aflag.Flags) error {
+	return acopy.Copy(filepath.Join(filepath.Join(flags.TmpPath, "System64"), dirEntry.Name()), filepath.Join(target, dirEntry.Name()))
 }

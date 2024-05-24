@@ -63,7 +63,7 @@ func Parse(list []string, flags *Flags) []string {
 		"{TARGETARM64}":       flags.Targetarm64,
 		"{TARGETARM64_UPPER}": strings.ToUpper(flags.Targetarm64),
 		"{MSVC_VERSION}":      flags.MsvcVer,
-		"{WINSDK_VERSION}":    flags.WinSDKVer,
+		"{WINSDK_VERSION}":    flags.WinSdkVer,
 	}
 
 	parsed := []string{}

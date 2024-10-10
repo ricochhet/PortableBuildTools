@@ -9,6 +9,11 @@ all: portablebuildtools msiextract postbuild
 fmt:
 	gofumpt -l -w .
 
+mod:
+	go get -u
+	go mod tidy
+
+
 lint:
 	golangci-lint run
 

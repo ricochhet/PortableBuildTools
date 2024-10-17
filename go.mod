@@ -3,8 +3,8 @@ module github.com/ricochhet/portablebuildtools
 go 1.22
 
 require (
-	github.com/ricochhet/simpledownload v0.0.0-20240514234720-00e9bdf43a1e
-	github.com/ricochhet/simplezip v0.0.0-20240514234612-7ac8ba7e43fb
+	github.com/ricochhet/simpledownload v0.0.0-20241010172735-ba392897b8ab
+	github.com/ricochhet/simplezip v0.0.0-20241010172844-88c5fa1cc585
 	github.com/tidwall/gjson v1.18.0
 	golang.org/x/sync v0.8.0
 	golang.org/x/sys v0.26.0

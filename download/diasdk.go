@@ -23,10 +23,10 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/ricochhet/minicommon/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	acopy "github.com/ricochhet/portablebuildtools/thirdparty/copy"
-	"github.com/ricochhet/simpledownload"
 	"github.com/tidwall/gjson"
 )
 
@@ -42,7 +42,7 @@ func GetDiaSdk(payloads []string, destx64, destx86, destarm, destarm64 string, f
 			sha256 := pkg.Get("sha256").String()
 			fileName := pkg.Get("fileName").String()
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpDia); err != nil {
+			if err := download.FileValidated(url, sha256, fileName, flags.TmpDia); err != nil {
 				fmt.Println("Error downloading DIA SDK package:", err)
 				continue
 			}

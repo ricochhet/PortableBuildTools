@@ -25,9 +25,9 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/ricochhet/minicommon/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
-	"github.com/ricochhet/simpledownload"
 	"github.com/tidwall/gjson"
 )
 
@@ -43,7 +43,7 @@ func GetWinSdk(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 
 		if slices.Contains(winsdkpackages, name) {
 			fileName := strings.TrimPrefix(name, installerPrefix)
-			installer, err := simpledownload.FileWithBytesValidated(url, sha256, fileName, flags.TmpPath)
+			installer, err := download.FileWithBytesValidated(url, sha256, fileName, flags.TmpPath)
 			if err != nil { //nolint:wsl // gofumpt conflict
 				fmt.Println("Error downloading Windows SDK package:", err)
 				continue
@@ -62,7 +62,7 @@ func GetWinSdk(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 		if slices.Contains(cabinets, strings.TrimPrefix(name, installerPrefix)) {
 			fileName := strings.TrimPrefix(name, installerPrefix)
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
+			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
 				fmt.Println("Error downloading cab:", err)
 				continue
 			}

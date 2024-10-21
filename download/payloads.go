@@ -24,9 +24,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ricochhet/minicommon/download"
+	"github.com/ricochhet/minicommon/zip"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
-	"github.com/ricochhet/simpledownload"
-	"github.com/ricochhet/simplezip"
 	"github.com/tidwall/gjson"
 )
 
@@ -44,7 +44,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 				fileName = sha256 + ".vsix"
 			}
 
-			if err := simpledownload.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
+			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
 				fmt.Println("Error downloading MSVC package:", err)
 				continue
 			}
@@ -69,5 +69,5 @@ func extractVsix(fpath, destpath string) error {
 		return errNotVsixFile
 	}
 
-	return simplezip.UnzipByPrefixWithMessenger(fpath, destpath, "Contents", simplezip.DefaultUnzipMessenger())
+	return zip.UnzipByPrefixWithMessenger(fpath, destpath, "Contents", zip.DefaultUnzipMessenger())
 }

@@ -21,14 +21,14 @@ package download
 import (
 	"fmt"
 
+	"github.com/ricochhet/minicommon/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
-	"github.com/ricochhet/simpledownload"
 	"github.com/tidwall/gjson"
 )
 
 func GetManifest(flags *aflag.Flags) (string, error) {
 	var manifest string
-	if b, err := simpledownload.Download(flags.ManifestURL); err == nil {
+	if b, err := download.Download(flags.ManifestURL); err == nil {
 		manifest = string(b)
 	} else {
 		fmt.Println("Error downloading main manifest:", err)
@@ -48,7 +48,7 @@ func GetManifest(flags *aflag.Flags) (string, error) {
 	var vsManifestJSON string
 
 	payload := gjson.Get(vsChannelManifest, "payloads").Array()[0].String()
-	if b, err := simpledownload.Download(gjson.Get(payload, "url").String()); err == nil {
+	if b, err := download.Download(gjson.Get(payload, "url").String()); err == nil {
 		vsManifestJSON = string(b)
 	} else {
 		return "", err

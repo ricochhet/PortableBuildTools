@@ -21,10 +21,10 @@ package main
 import (
 	"path/filepath"
 
+	"github.com/ricochhet/minicommon/zip"
 	"github.com/ricochhet/portablebuildtools/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
-	"github.com/ricochhet/simplezip"
 )
 
 //nolint:cyclop,gocyclo // wintfix
@@ -100,7 +100,7 @@ func main() {
 	}
 
 	if flags.Zip {
-		if err := simplezip.Zip(flags.Dest, flags.DestZip); err != nil {
+		if err := zip.Zip(flags.Dest, flags.DestZip); err != nil {
 			panic(err)
 		}
 	}

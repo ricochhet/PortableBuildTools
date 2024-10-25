@@ -3,7 +3,7 @@ module github.com/ricochhet/portablebuildtools
 go 1.22
 
 require (
-	github.com/ricochhet/minicommon v0.0.0-20241021225008-d66802f3cd2f
+	github.com/ricochhet/minicommon v0.0.0-20241025210119-1a546b792d0c
 	github.com/tidwall/gjson v1.18.0
 	golang.org/x/sync v0.8.0
 	golang.org/x/sys v0.26.0

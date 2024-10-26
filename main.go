@@ -19,16 +19,56 @@
 package main
 
 import (
+	"io"
+	"log"
+	"os"
 	"path/filepath"
 
+	"github.com/ricochhet/minicommon/filesystem"
+	"github.com/ricochhet/minicommon/logger"
 	"github.com/ricochhet/minicommon/zip"
 	"github.com/ricochhet/portablebuildtools/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 )
 
-//nolint:cyclop,gocyclo // wintfix
+var (
+	gitHash   string //nolint:gochecknoglobals // wontfix
+	buildDate string //nolint:gochecknoglobals // wontfix
+	buildOn   string //nolint:gochecknoglobals // wontfix
+)
+
+func printVersion() {
+	logger.SharedLogger.Info(buildOn)
+	logger.SharedLogger.Infof("GitHash: %s", gitHash)
+	logger.SharedLogger.Infof("Build Date: %s", buildDate)
+}
+
+func logFile() *os.File { //nolint:mnd // wontfix
+	file, err := os.OpenFile(filesystem.GetRelativePath("portablebuildtools_log.txt"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return file
+}
+
+//nolint:cyclop,gocyclo,funlen,mnd // wontfix
 func main() {
+	logfile := logFile()
+	defer func() {
+		if err := logfile.Close(); err != nil {
+			log.Fatalf("Error closing logfile: %v", err)
+		}
+	}()
+
+	logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, os.Stdout), log.Lshortfile|log.LstdFlags)
+
+	if flags.Version {
+		printVersion()
+		return
+	}
+
 	if _, _, err := internal.FindMsiExtract(); err != nil {
 		panic(err)
 	}

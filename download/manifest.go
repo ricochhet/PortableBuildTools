@@ -19,9 +19,8 @@
 package download
 
 import (
-	"fmt"
-
 	"github.com/ricochhet/minicommon/download"
+	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
 )
@@ -31,7 +30,7 @@ func GetManifest(flags *aflag.Flags) (string, error) {
 	if b, err := download.Download(flags.ManifestURL); err == nil {
 		manifest = string(b)
 	} else {
-		fmt.Println("Error downloading main manifest:", err)
+		logger.SharedLogger.Errorf("Error downloading main manifest: %v", err)
 		return "", err
 	}
 

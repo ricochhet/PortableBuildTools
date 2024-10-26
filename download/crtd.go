@@ -19,12 +19,12 @@
 package download
 
 import (
-	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"github.com/ricochhet/minicommon/download"
+	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	acopy "github.com/ricochhet/portablebuildtools/thirdparty/copy"
@@ -40,7 +40,7 @@ func GetCrtd(payloads []string, destx64, destx86, destarm, destarm64 string, fla
 			fileName := pkg.Get("fileName").String()
 
 			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
-				fmt.Println("Error downloading CRTD package:", err)
+				logger.SharedLogger.Errorf("Error downloading CRTD package: %v", err)
 				continue
 			}
 		}

@@ -19,6 +19,7 @@
 package flag
 
 type Flags struct {
+	Version           bool
 	MsvcVer           string
 	WinSdkVer         string
 	Dest              string // output folder

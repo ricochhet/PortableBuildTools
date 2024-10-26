@@ -27,6 +27,7 @@ import (
 var (
 	flags    *aflag.Flags = Newflag()    //nolint:gochecknoglobals // ...
 	defaults              = aflag.Flags{ //nolint:gochecknoglobals // ...
+		Version:           false,
 		MsvcVer:           "14.39.17.9",
 		WinSdkVer:         "Win11SDK_10.0.22621",
 		Dest:              "build/sdk_standalone",
@@ -60,6 +61,7 @@ func Newflag() *aflag.Flags {
 
 //nolint:gochecknoinits,lll // cli flags only
 func init() {
+	flag.BoolVar(&flags.Version, "v", false, "Print the current version")
 	flag.StringVar(&flags.MsvcVer, "msvcv", defaults.MsvcVer, "Specify MSVC version")
 	flag.StringVar(&flags.WinSdkVer, "sdkv", defaults.WinSdkVer, "Specify Windows SDK identifier")
 	flag.StringVar(&flags.Dest, "dest", defaults.Dest, "Specify destination folder")

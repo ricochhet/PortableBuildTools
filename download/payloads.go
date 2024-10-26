@@ -20,11 +20,11 @@ package download
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/ricochhet/minicommon/download"
+	"github.com/ricochhet/minicommon/logger"
 	"github.com/ricochhet/minicommon/zip"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
@@ -45,13 +45,13 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 			}
 
 			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
-				fmt.Println("Error downloading MSVC package:", err)
+				logger.SharedLogger.Errorf("Error downloading MSVC package: %v", err)
 				continue
 			}
 
 			fpath := filepath.Join(flags.TmpPath, fileName)
 
-			fmt.Println("Extracting: ", fpath)
+			logger.SharedLogger.Infof("Extracting: %s", fpath)
 
 			if err := extractVsix(fpath, flags.Dest); err != nil {
 				return err

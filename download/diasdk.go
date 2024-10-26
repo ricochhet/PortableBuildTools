@@ -20,10 +20,10 @@ package download
 
 import (
 	"errors"
-	"fmt"
 	"path/filepath"
 
 	"github.com/ricochhet/minicommon/download"
+	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	acopy "github.com/ricochhet/portablebuildtools/thirdparty/copy"
@@ -43,7 +43,7 @@ func GetDiaSdk(payloads []string, destx64, destx86, destarm, destarm64 string, f
 			fileName := pkg.Get("fileName").String()
 
 			if err := download.FileValidated(url, sha256, fileName, flags.TmpDia); err != nil {
-				fmt.Println("Error downloading DIA SDK package:", err)
+				logger.SharedLogger.Errorf("Error downloading DIA SDK package: %v", err)
 				continue
 			}
 		}

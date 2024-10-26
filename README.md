@@ -15,6 +15,15 @@ Create standalone instances of VS Build Tools.
 - Run `portablebuildtools.exe` found under `build/`.
     - Use `portablebuildtools -h` to view a list of commands.
 
+# Usage
+- Run `portablebuildtools.exe` after building to download the default packages.
+    - ARM/ARM64 targets can be downloaded by appending the `--arm-targets` flag.
+    - Spectre libraries can be downloaded by appending the `--spectre-libs` flag.
+    - LLVM Clang can be downloaded by appending the `--llvm-clang` flag.
+    - UnitTest framework can be downloaded by appending the `--unittest` flag.
+    - Cmake can be downloaded by appending the `--cmake` flag.
+    - MFC/ATL libraries can be downloaded by appending the `--mfc-atl` flag.
+
 ## Testing
 Rudimentary testing is located in `tests/*`
 - After downloading the standalone SDK, run the tests via `build_win.bat`.

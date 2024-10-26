@@ -3,7 +3,7 @@ Create standalone instances of VS Build Tools.
 
 > [!Warning]
 > #### Under Development
-> ###### Do not expect anything to work as expected. Feel to contribute.
+> ###### There is no stable version.
 
 # Requirements
 - Go 1.22 or later.

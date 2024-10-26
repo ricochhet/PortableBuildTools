@@ -42,6 +42,7 @@ var (
 		LlvmClang:         false,
 		UnitTest:          false,
 		Cmake:             false,
+		MfcAtl:            false,
 		ManifestURL:       "https://aka.ms/vs/17/release/channel", // https://aka.ms/vs/17/pre/channel
 		Targetx64:         "x64",
 		Targetx86:         "x86",
@@ -74,6 +75,7 @@ func init() {
 	flag.BoolVar(&flags.LlvmClang, "llvm-clang", defaults.LlvmClang, "Download LLVM Clang")
 	flag.BoolVar(&flags.UnitTest, "unittest", defaults.UnitTest, "Download UnitTest framework")
 	flag.BoolVar(&flags.Cmake, "cmake", defaults.Cmake, "Download Cmake build tools")
+	flag.BoolVar(&flags.MfcAtl, "mfc-atl", defaults.MfcAtl, "Download MFC/ATL libraries")
 	flag.StringVar(&flags.ManifestURL, "manifest-url", defaults.ManifestURL, "Specify VS manifest url")
 	flag.BoolVar(&flags.WriteEnvironment, "write-env", defaults.WriteEnvironment, "Write environment variable batch scripts")
 	flag.BoolVar(&flags.Verbose, "verbose", defaults.Verbose, "Verbose logging")

@@ -27,9 +27,9 @@ import (
 )
 
 var (
-	sdkPid    = "Win11SDK_10.0.22621"
-	rtDbgPid  = "microsoft.visualcpp.runtimedebug.14"
-	diaSdkPid = "microsoft.visualc.140.dia.sdk.msi"
+	sdkPid    = "Win11SDK_10.0.22621"                 //nolint:gochecknoglobals // ...
+	rtDbgPid  = "microsoft.visualcpp.runtimedebug.14" //nolint:gochecknoglobals // ...
+	diaSdkPid = "microsoft.visualc.140.dia.sdk.msi"   //nolint:gochecknoglobals // ...
 )
 
 func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]string, []string, []string, []gjson.Result) {

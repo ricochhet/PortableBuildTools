@@ -20,7 +20,7 @@ package flag
 
 import "fmt"
 
-func AppendOptionals(msvcPackages, sdkPackages []string, flags *Flags) ([]string, []string) {
+func AppendOptionals(msvcPackages, sdkPackages []string, flags *Flags) ([]string, []string) { //nolint:cyclop // ...
 	msvcAppend := msvcPackages
 	sdkAppend := sdkPackages
 
@@ -45,6 +45,22 @@ func AppendOptionals(msvcPackages, sdkPackages []string, flags *Flags) ([]string
 		msvcAppend = append(msvcAppend, MsvcSpectrePackages(flags)...)
 		if flags.ArmTargets {
 			msvcAppend = append(msvcAppend, MsvcArmSpectrePackages(flags)...)
+		}
+	}
+
+	if flags.MfcAtl {
+		msvcAppend = append(msvcAppend, MfcAtlPackages(flags)...)
+
+		if flags.ArmTargets {
+			msvcAppend = append(msvcAppend, MfcAtlArmPackages(flags)...)
+		}
+
+		if flags.SpectreLibs {
+			msvcAppend = append(msvcAppend, MfcAtlSpectrePackages(flags)...)
+
+			if flags.ArmTargets {
+				msvcAppend = append(msvcAppend, MfcAtlSpectreArmPackages(flags)...)
+			}
 		}
 	}
 
@@ -183,5 +199,65 @@ func CmakePackages() []string {
 func UnitTestPackages() []string {
 	return []string{
 		"microsoft.visualstudio.vc.unittest.desktop.build.core",
+	}
+}
+
+func MfcAtlPackages(flags *Flags) []string {
+	return []string{
+		// MFC
+		fmt.Sprintf("microsoft.vc.%s.mfc.headers.base", flags.MsvcVer),
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.base", flags.MsvcVer, flags.Targetx64),
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.base", flags.MsvcVer, flags.Targetx86),
+		// MFC MBCS (Multibyte Character Set)
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.base", flags.MsvcVer),
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.%s.base", flags.MsvcVer, flags.Targetx64),
+		// MFC source
+		fmt.Sprintf("microsoft.vc.%s.mfc.source.base", flags.MsvcVer),
+		// ATL
+		fmt.Sprintf("microsoft.vc.%s.atl.headers.base", flags.MsvcVer),
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.base", flags.MsvcVer, flags.Targetx64),
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.base", flags.MsvcVer, flags.Targetx86),
+		// ATL source
+		fmt.Sprintf("microsoft.vc.%s.atl.source.base", flags.MsvcVer),
+	}
+}
+
+func MfcAtlSpectrePackages(flags *Flags) []string {
+	return []string{
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.spectre.base", flags.MsvcVer, flags.Targetx64),
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.spectre.base", flags.MsvcVer, flags.Targetx86),
+
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.spectre.base", flags.MsvcVer),
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.%s.spectre.base", flags.MsvcVer, flags.Targetx64),
+
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.spectre.base", flags.MsvcVer, flags.Targetx64),
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.spectre.base", flags.MsvcVer, flags.Targetx86),
+	}
+}
+
+func MfcAtlSpectreArmPackages(flags *Flags) []string {
+	return []string{
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.spectre.base", flags.MsvcVer, flags.Targetarm64),
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.spectre.base", flags.MsvcVer, flags.Targetarm),
+
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.%s.spectre.base", flags.MsvcVer, flags.Targetarm64),
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.%s.spectre.base", flags.MsvcVer, flags.Targetarm),
+
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.spectre.base", flags.MsvcVer, flags.Targetarm64),
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.spectre.base", flags.MsvcVer, flags.Targetarm),
+	}
+}
+
+func MfcAtlArmPackages(flags *Flags) []string {
+	return []string{
+		// MFC
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.base", flags.MsvcVer, flags.Targetarm64),
+		fmt.Sprintf("microsoft.vc.%s.mfc.%s.base", flags.MsvcVer, flags.Targetarm),
+		// MFC MBCS (Multibyte Character Set)
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.%s.base", flags.MsvcVer, flags.Targetarm64),
+		fmt.Sprintf("microsoft.vc.%s.mfc.mbcs.%s.base", flags.MsvcVer, flags.Targetarm),
+		// ATL
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.base", flags.MsvcVer, flags.Targetarm64),
+		fmt.Sprintf("microsoft.vc.%s.atl.%s.base", flags.MsvcVer, flags.Targetarm),
 	}
 }

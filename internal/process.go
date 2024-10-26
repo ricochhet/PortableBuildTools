@@ -21,10 +21,22 @@ package internal
 import (
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
-func Exec(command string, args ...string) error {
-	cmd := exec.Command(command, args...)
+func Exec(command string, relative bool, args ...string) error {
+	path := command
+
+	if relative {
+		cwd, err := os.Executable()
+		if err != nil {
+			return err
+		}
+
+		path = filepath.Join(filepath.Dir(cwd), command)
+	}
+
+	cmd := exec.Command(path, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 

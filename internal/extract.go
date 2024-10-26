@@ -29,7 +29,7 @@ import (
 
 var errMSIExtractMissing = errors.New("MSIExtract tool was not found")
 
-func FindMsiExtract() (string, error) {
+func FindMsiExtract() (string, bool, error) {
 	var executable string
 	if runtime.GOOS == "windows" {
 		executable = "msiextract.exe"
@@ -38,26 +38,26 @@ func FindMsiExtract() (string, error) {
 	}
 
 	if exists, err := aflag.IsFile(filepath.Join("./", executable)); err == nil && exists {
-		return filepath.Join("./", executable), nil
+		return filepath.Join("./", executable), true, nil
 	}
 
 	if lookPath, err := exec.LookPath(executable); err == nil {
-		return lookPath, nil
+		return lookPath, false, nil
 	}
 
-	return "", errMSIExtractMissing
+	return "", false, errMSIExtractMissing
 }
 
 func ExtractMsi(flags *aflag.Flags, args ...string) error {
-	path, err := FindMsiExtract()
+	path, rel, err := FindMsiExtract()
 	if err != nil {
 		return err
 	}
 
 	if flags.Verbose {
 		args = append(args, "-s")
-		return Exec(path, args...)
+		return Exec(path, rel, args...)
 	}
 
-	return Exec(path, args...)
+	return Exec(path, rel, args...)
 }

@@ -34,6 +34,7 @@ type Flags struct {
 	LlvmClang         bool
 	UnitTest          bool
 	Cmake             bool
+	MfcAtl            bool
 	ManifestURL       string
 	Targetx64         string
 	Targetx86         string

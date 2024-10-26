@@ -29,7 +29,7 @@ import (
 
 //nolint:cyclop,gocyclo // wintfix
 func main() {
-	if _, err := internal.FindMsiExtract(); err != nil {
+	if _, _, err := internal.FindMsiExtract(); err != nil {
 		panic(err)
 	}
 

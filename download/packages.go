@@ -26,6 +26,12 @@ import (
 	"github.com/tidwall/gjson"
 )
 
+var (
+	sdkPid    = "Win11SDK_10.0.22621"
+	rtDbgPid  = "microsoft.visualcpp.runtimedebug.14"
+	diaSdkPid = "microsoft.visualc.140.dia.sdk.msi"
+)
+
 func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]string, []string, []string, []gjson.Result) {
 	packages := gjson.Get(manifest, "packages").Array()
 
@@ -47,13 +53,13 @@ func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]
 			}
 		} else {
 			switch pid {
-			case strings.ToLower("Win11SDK_10.0.22621"):
+			case strings.ToLower(sdkPid):
 				sdkPayloads = gjson.Get(pkg.String(), "payloads").Array()
-			case "microsoft.visualcpp.runtimedebug.14":
+			case rtDbgPid:
 				if gjson.Get(pkg.String(), "chip").String() == flags.Host {
 					crtdPayloads = append(crtdPayloads, gjson.Get(pkg.String(), "payloads").String())
 				}
-			case "microsoft.visualc.140.dia.sdk.msi":
+			case diaSdkPid:
 				diaPayloads = append(diaPayloads, gjson.Get(pkg.String(), "payloads").String())
 			}
 		}

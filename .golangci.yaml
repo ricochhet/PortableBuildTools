@@ -29,12 +29,12 @@ linters-settings:
             prevent_unmaintained_packages:
                 allow:
                     - $gostd
+                    - github.com/otiai10/copy
                     - github.com/tidwall/gjson
                     - github.com/ricochhet/minicommon
                     - github.com/ricochhet/portablebuildtools/flag
                     - github.com/ricochhet/portablebuildtools/internal
                     - github.com/ricochhet/portablebuildtools/download
-                    - github.com/ricochhet/portablebuildtools/thirdparty/copy
 issues:
     exclude-dirs:
         - thirdparty/

@@ -22,11 +22,11 @@ import (
 	"errors"
 	"path/filepath"
 
+	acopy "github.com/otiai10/copy"
 	"github.com/ricochhet/minicommon/download"
 	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
-	acopy "github.com/ricochhet/portablebuildtools/thirdparty/copy"
 	"github.com/tidwall/gjson"
 )
 

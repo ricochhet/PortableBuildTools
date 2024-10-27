@@ -122,6 +122,10 @@ func moveProgramData(flags *aflag.Flags) error {
 func moveProgramFiles(flags *aflag.Flags) error {
 	msiProgramFiles := filepath.Join(flags.Dest, "Program Files")
 
+	if !filesystem.Exists(msiProgramFiles) {
+		return nil
+	}
+
 	dirs, err := os.ReadDir(msiProgramFiles)
 	if err != nil {
 		return err

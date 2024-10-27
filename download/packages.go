@@ -22,7 +22,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
 )
@@ -64,8 +63,6 @@ func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]
 				}
 			case diaSdkPid:
 				diaPayloads = append(diaPayloads, gjson.Get(pkg.String(), "payloads").String())
-			default:
-				logger.SharedLogger.Warnf("Skipping: %s", pid)
 			}
 		}
 	}

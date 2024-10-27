@@ -1,16 +1,13 @@
+//nolint:mnd // wontfix
 package main
 
 import (
-	"fmt"
-
 	"github.com/AllenDang/giu"
 )
 
-var (
-	sashPos1 float32 = 500
-)
+var sashPos1 float32 = 500 //nolint:gochecknoglobals // wontfix
 
-func MainWindow() {
+func window() {
 	giu.SingleWindow().Layout(
 		giu.Condition(working, giu.Label("Working..."), nil),
 		giu.SplitLayout(giu.DirectionVertical, &sashPos1,
@@ -45,6 +42,6 @@ func MainWindow() {
 }
 
 func Gui(ver string) {
-	wnd := giu.NewMasterWindow(fmt.Sprintf("PortableBuildTools - %s", ver), 840, 300, 0)
-	wnd.Run(MainWindow)
+	wnd := giu.NewMasterWindow("PortableBuildTools - %s"+ver, 840, 300, 0)
+	wnd.Run(window)
 }

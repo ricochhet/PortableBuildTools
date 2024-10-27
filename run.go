@@ -1,3 +1,4 @@
+//nolint:mnd // wontfix
 package main
 
 import (
@@ -11,7 +12,7 @@ import (
 	"github.com/ricochhet/portablebuildtools/internal"
 )
 
-var working bool
+var working bool //nolint:gochecknoglobals // wontfix
 
 func run() {
 	errCh := make(chan error, 3)
@@ -26,21 +27,25 @@ func run() {
 		for err := range errCh {
 			if err != nil {
 				logger.SharedLogger.Errorf("ERROR: %v", err)
+
 				working = false
 			}
 		}
 
 		working = false
+
 		logger.SharedLogger.Info("... DONE")
+
 		giu.Update()
 	}()
 }
 
-func runWerr(errCh chan<- error) {
+func runWerr(errCh chan<- error) { //nolint:funlen,cyclop // wontfix
 	defer close(errCh)
 
 	if _, _, err := internal.FindMsiExtract(); err != nil {
 		errCh <- err
+
 		return
 	}
 
@@ -50,6 +55,7 @@ func runWerr(errCh chan<- error) {
 	cwd, err := internal.CreateDirectories(flags)
 	if err != nil {
 		errCh <- err
+
 		return
 	}
 
@@ -62,23 +68,28 @@ func runWerr(errCh chan<- error) {
 	vsManifestJSON, err := download.GetManifest(flags)
 	if err != nil {
 		errCh <- err
+
 		return
 	}
 
 	payloads, crtd, dia, sdk := download.GetPackages(flags, vsManifestJSON, msvcPackages)
+
 	if err := download.GetPayloads(flags, payloads); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if err := download.GetWinSdk(flags, sdk, sdkPackages); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	msvcv, err := internal.GetMsvcVersion(flags)
 	if err != nil {
 		errCh <- err
+
 		return
 	}
 
@@ -89,37 +100,44 @@ func runWerr(errCh chan<- error) {
 
 	if err := download.GetCrtd(crtd, destx64, destx86, destarm, destarm64, flags); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if err := download.GetDiaSdk(dia, destx64, destx86, destarm, destarm64, flags); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if err := internal.RemoveVcTipsTelemetry(flags); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if err := internal.CleanHostDirectory(flags); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if err := internal.WriteEnvironment(flags); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if err := internal.CopyInstances(flags); err != nil {
 		errCh <- err
+
 		return
 	}
 
 	if flags.Zip {
 		if err := zip.Zip(flags.Dest, flags.DestZip); err != nil {
 			errCh <- err
+
 			return
 		}
 	}
@@ -142,7 +160,9 @@ func writeEnvironments() {
 		}
 
 		working = false
+
 		logger.SharedLogger.Info("... DONE")
+
 		giu.Update()
 	}()
 }
@@ -151,10 +171,12 @@ func writeEnvironmentsWerr(errCh chan<- error) {
 	if flags.WriteEnvironment {
 		if err := internal.WriteEnvironment(flags); err != nil {
 			errCh <- err
+
 			return
 		}
 
 		errCh <- nil
+
 		return
 	}
 }

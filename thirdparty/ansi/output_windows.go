@@ -13,17 +13,15 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-var (
-	singleArgFunctions = map[rune]func(int){
-		'A': CursorUp,
-		'B': CursorDown,
-		'C': CursorForward,
-		'D': CursorBack,
-		'E': CursorNextLine,
-		'F': CursorPreviousLine,
-		'G': CursorHorizontalAbsolute,
-	}
-)
+var singleArgFunctions = map[rune]func(int){
+	'A': CursorUp,
+	'B': CursorDown,
+	'C': CursorForward,
+	'D': CursorBack,
+	'E': CursorNextLine,
+	'F': CursorPreviousLine,
+	'G': CursorHorizontalAbsolute,
+}
 
 const (
 	foregroundBlue      = 0x1

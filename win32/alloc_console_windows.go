@@ -29,12 +29,13 @@ import (
 	"github.com/ricochhet/portablebuildtools/thirdparty/ansi"
 )
 
-func AllocConsole() (aIn, aOut, aErr io.Writer, e error) {
+func AllocConsole() (aIn, aOut, aErr io.Writer, e error) { //nolint:nonamedreturns // wontfix
 	kernal23 := syscall.NewLazyDLL("kernel32.dll")
 	allocConsole := kernal23.NewProc("AllocConsole")
+
 	r0, _, err0 := syscall.SyscallN(allocConsole.Addr(), 0, 0, 0, 0)
 	if r0 == 0 {
-		return nil, nil, nil, fmt.Errorf("could not allocate console: %s. check build flags", err0)
+		return nil, nil, nil, fmt.Errorf("could not allocate console: %w. check build flags", err0)
 	}
 
 	hIn, err1 := syscall.GetStdHandle(syscall.STD_INPUT_HANDLE)

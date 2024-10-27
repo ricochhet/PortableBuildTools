@@ -21,6 +21,7 @@
 package win32
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"syscall"
@@ -29,26 +30,31 @@ import (
 )
 
 func AttachConsole() error {
-	const ATTACH_PARENT_PROCESS = ^uintptr(0)
+	const AttachParentProcess = ^uintptr(0)
+
 	proc := syscall.MustLoadDLL("kernel32.dll").MustFindProc("AttachConsole")
-	r1, _, err := proc.Call(ATTACH_PARENT_PROCESS)
+
+	r1, _, err := proc.Call(AttachParentProcess)
 	if r1 == 0 {
-		errno, ok := err.(syscall.Errno)
+		errno, ok := err.(syscall.Errno) //nolint:errorlint // wontfix
+
 		if ok && errno == 6 {
 			return nil
 		}
+
 		return err
-	} else {
-		return nil
 	}
+
+	return nil
 }
 
-var wstdin, wstdout, wstderr *os.File
+var wstdin, wstdout, wstderr *os.File //nolint:gochecknoglobals // wontfix
 
-func AttachConsoleW() error {
+func AttachConsoleW() error { //nolint:gocyclo,cyclop // wontfix
 	wstdin, wstdout, wstderr = os.Stdin, os.Stdout, os.Stderr
+
 	if wstdin == nil || wstdout == nil || wstderr == nil {
-		return fmt.Errorf("nil")
+		return errors.New("nil") //nolint:err113 // wontfix
 	}
 
 	stdin, _ := syscall.GetStdHandle(syscall.STD_INPUT_HANDLE)
@@ -56,21 +62,24 @@ func AttachConsoleW() error {
 	stderr, _ := syscall.GetStdHandle(syscall.STD_ERROR_HANDLE)
 
 	var invalid syscall.Handle
+
 	con := invalid
 
 	if stdin == invalid || stdout == invalid || stderr == invalid {
 		err := AttachConsole()
 		if err != nil {
-			return fmt.Errorf("attachconsole: %v", err)
+			return fmt.Errorf("attachconsole: %w", err)
 		}
 
 		if stdin == invalid {
 			stdin, _ = syscall.GetStdHandle(syscall.STD_INPUT_HANDLE)
 		}
+
 		if stdout == invalid {
 			stdout, _ = syscall.GetStdHandle(syscall.STD_OUTPUT_HANDLE)
 			con = stdout
 		}
+
 		if stderr == invalid {
 			stderr, _ = syscall.GetStdHandle(syscall.STD_ERROR_HANDLE)
 			con = stderr
@@ -78,26 +87,32 @@ func AttachConsoleW() error {
 	}
 
 	if con != invalid {
-		h := windows.Handle(con)
-		var st uint32
-		err := windows.GetConsoleMode(h, &st)
+		hand := windows.Handle(con)
+
+		var mode uint32
+
+		err := windows.GetConsoleMode(hand, &mode)
 		if err != nil {
-			return fmt.Errorf("GetConsoleMode: %v", err)
+			return fmt.Errorf("GetConsoleMode: %w", err)
 		}
-		err = windows.SetConsoleMode(h, st&^windows.DISABLE_NEWLINE_AUTO_RETURN)
+
+		err = windows.SetConsoleMode(hand, mode&^windows.DISABLE_NEWLINE_AUTO_RETURN)
 		if err != nil {
-			return fmt.Errorf("SetConsoleMode: %v", err)
+			return fmt.Errorf("SetConsoleMode: %w", err)
 		}
 	}
 
 	if stdin != invalid {
 		os.Stdin = os.NewFile(uintptr(stdin), "stdin")
 	}
+
 	if stdout != invalid {
 		os.Stdout = os.NewFile(uintptr(stdout), "stdout")
 	}
+
 	if stderr != invalid {
 		os.Stderr = os.NewFile(uintptr(stderr), "stderr")
 	}
+
 	return nil
 }

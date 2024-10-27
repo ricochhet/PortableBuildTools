@@ -6,7 +6,7 @@ import (
 )
 
 func Cli(flags *aflag.Flags) {
-	errCh := make(chan error, 3)
+	errCh := make(chan error, 3) //nolint:mnd // wontfix
 
 	if flags.Version {
 		printVersion()
@@ -14,6 +14,7 @@ func Cli(flags *aflag.Flags) {
 	}
 
 	writeEnvironmentsWerr(errCh)
+
 	for err := range errCh {
 		if err != nil {
 			logger.SharedLogger.Fatalf("FATAL: %v", err)
@@ -21,6 +22,7 @@ func Cli(flags *aflag.Flags) {
 	}
 
 	runWerr(errCh)
+
 	for err := range errCh {
 		if err != nil {
 			logger.SharedLogger.Fatalf("FATAL: %v", err)

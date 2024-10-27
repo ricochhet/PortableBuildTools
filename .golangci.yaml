@@ -31,10 +31,13 @@ linters-settings:
                     - $gostd
                     - github.com/otiai10/copy
                     - github.com/tidwall/gjson
+                    - github.com/AllenDang/giu
                     - github.com/ricochhet/minicommon
                     - github.com/ricochhet/portablebuildtools/flag
+                    - github.com/ricochhet/portablebuildtools/win32
                     - github.com/ricochhet/portablebuildtools/internal
                     - github.com/ricochhet/portablebuildtools/download
+                    - github.com/ricochhet/portablebuildtools/thirdparty/ansi
 issues:
     exclude-dirs:
         - thirdparty/

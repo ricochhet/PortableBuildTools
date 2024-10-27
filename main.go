@@ -49,27 +49,33 @@ func logFile() *os.File { //nolint:mnd // wontfix
 	return file
 }
 
-//nolint:cyclop,gocyclo,funlen,mnd // wontfix
+//nolint:mnd // wontfix
 func main() {
 	logfile := logFile()
 	defer func() {
 		if err := logfile.Close(); err != nil {
-			log.Fatalf("Error closing logfile: %v", err)
+			panic(err)
 		}
 	}()
 
 	if len(os.Args) > 1 {
-		win32.AttachConsoleW()
-		logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, os.Stdout), log.Lshortfile|log.LstdFlags)
-		Cli(flags)
-	} else {
-		if _, aOut, _, err := win32.AllocConsole(); err != nil {
-			log.Fatalf("Error allocating console: %v", err)
-		} else {
-			logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, aOut), log.Lshortfile|log.LstdFlags)
+		if err := win32.AttachConsoleW(); err != nil {
+			panic(err)
 		}
 
+		logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, os.Stdout), log.Lshortfile|log.LstdFlags)
+
+		Cli(flags)
+	} else {
+		_, aOut, _, err := win32.AllocConsole()
+		if err != nil {
+			panic(err)
+		}
+
+		logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, aOut), log.Lshortfile|log.LstdFlags)
+
 		logger.SharedLogger.Info("Initialized!")
+
 		Gui(gitHash)
 	}
 }

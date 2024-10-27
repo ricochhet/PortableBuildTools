@@ -15,7 +15,9 @@ Create standalone instances of VS Build Tools.
 - Run `portablebuildtools.exe` found under `build/`.
     - Use `portablebuildtools -h` to view a list of commands.
 
-## Usage
+![Screenshot](./public/screenshot.png)
+
+## Usage (CLI)
 - Run `portablebuildtools.exe` after building to download the default packages.
     - ARM/ARM64 targets can be downloaded by appending the `--arm-targets` flag.
     - Spectre libraries can be downloaded by appending the `--spectre-libs` flag.

@@ -2,7 +2,7 @@ LDFLAGS=-X 'main.buildDate=$(shell date)' -X 'main.gitHash=$(shell git rev-parse
 
 GO_BUILD=go build -trimpath -ldflags "$(LDFLAGS)"
 
-.PHONY: all fmt lint test deadcode portablebuildtools msiextract postbuild clean
+.PHONY: all fmt lint test deadcode portablebuildtools msiextract postbuild create_release clean
 
 all: portablebuildtools msiextract postbuild
 
@@ -42,7 +42,7 @@ create_release:
 	cp -r _Instances/ .releases/$(shell git rev-parse HEAD)/_Instances/
 	cd .releases/$(shell git rev-parse HEAD)
 	find .releases/$(shell git rev-parse HEAD) -type f -exec sha256sum {} \; > .releases/$(shell git rev-parse HEAD)/portablebuildtools-sha256
-	find .releases/$(shell git rev-parse HEAD) -type f -exec gzip --best {} \;
+	tar -czf .releases/PortableBuildTools.tar.gz -C .releases/$(shell git rev-parse HEAD) .
 
 clean:
 	rm -f portablebuildtools-windows.exe

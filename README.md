@@ -5,7 +5,7 @@ Create standalone instances of VS Build Tools.
 > #### Under Development
 > ###### There is no stable version.
 
-# Requirements
+## Requirements
 - Go 1.22 or later.
 - Rust 1.78 or later.
 - GNU Make 4.4.1 or later.
@@ -15,7 +15,7 @@ Create standalone instances of VS Build Tools.
 - Run `portablebuildtools.exe` found under `build/`.
     - Use `portablebuildtools -h` to view a list of commands.
 
-# Usage
+## Usage
 - Run `portablebuildtools.exe` after building to download the default packages.
     - ARM/ARM64 targets can be downloaded by appending the `--arm-targets` flag.
     - Spectre libraries can be downloaded by appending the `--spectre-libs` flag.
@@ -24,7 +24,7 @@ Create standalone instances of VS Build Tools.
     - Cmake can be downloaded by appending the `--cmake` flag.
     - MFC/ATL libraries can be downloaded by appending the `--mfc-atl` flag.
 
-# Registering (Experimental)
+## Registering (Experimental)
 - Modify `_Instances/state.json` paths to match the download location. Modify additional files and values as needed.
 - Run `vs_register.bat`
 - Run `vswhere.exe` to check if your instance is registered.

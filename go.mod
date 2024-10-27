@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.23.2
 
 require (
-	github.com/AllenDang/giu v0.9.0
+	github.com/AllenDang/giu v0.9.1-0.20241026215826-cdbcd33dbed7
 	github.com/mattn/go-isatty v0.0.20
 	github.com/otiai10/copy v1.14.1-0.20240925044834-49b0b590f1e1
 	github.com/ricochhet/minicommon v0.0.0-20241026181221-84536c156e38
@@ -14,7 +14,7 @@ require (
 )
 
 require (
-	github.com/AllenDang/cimgui-go v1.0.3 // indirect
+	github.com/AllenDang/cimgui-go v1.0.4-0.20241026200445-990a0e771992 // indirect
 	github.com/AllenDang/go-findfont v0.0.0-20200702051237-9f180485aeb8 // indirect
 	github.com/faiface/mainthread v0.0.0-20171120011319-8b78f0a41ae3 // indirect
 	github.com/mazznoer/csscolorparser v0.1.5 // indirect

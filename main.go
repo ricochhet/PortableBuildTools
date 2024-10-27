@@ -25,7 +25,7 @@ import (
 
 	"github.com/ricochhet/minicommon/filesystem"
 	"github.com/ricochhet/minicommon/logger"
-	"github.com/ricochhet/portablebuildtools/win32"
+	"github.com/ricochhet/minicommon/win32"
 )
 
 var (

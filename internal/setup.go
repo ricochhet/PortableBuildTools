@@ -52,6 +52,11 @@ func WriteEnvironment(flags *aflag.Flags) error {
 		return err
 	}
 
+	err = os.WriteFile(filepath.Join(flags.Dest, "vs_register.bat"), register(sdkv), 0o600)
+	if err != nil {
+		return err
+	}
+
 	err = os.WriteFile(filepath.Join(flags.Dest, "set_vars64.bat"), x64(msvcv, sdkv, flags.Targetx64, flags.Targetx86, flags), 0o600)
 	if err != nil {
 		return err
@@ -81,4 +86,8 @@ func x64(msvcv, sdkv, targetA, targetB string, flags *aflag.Flags) []byte {
 
 func x86(msvcv, sdkv, targetA, targetB string, flags *aflag.Flags) []byte {
 	return []byte(aflag.NewMsvcX86Environ(msvcv, sdkv, targetA, targetB, flags.Host, flags))
+}
+
+func register(sdkv string) []byte {
+	return []byte(aflag.NewMsvcVsRegister(sdkv))
 }

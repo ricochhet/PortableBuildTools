@@ -19,22 +19,27 @@
 package download
 
 import (
-	"errors"
+	"os"
 	"path/filepath"
-	"strings"
 
+	acopy "github.com/otiai10/copy"
 	"github.com/ricochhet/minicommon/download"
+	"github.com/ricochhet/minicommon/filesystem"
 	"github.com/ricochhet/minicommon/logger"
-	"github.com/ricochhet/minicommon/zip"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
+	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/tidwall/gjson"
 )
 
-var errNotVsixFile = errors.New("file is not a vsix file")
-
+//nolint:cyclop // wontfix
 func GetPayloads(flags *aflag.Flags, payloads []string) error {
 	for _, payload := range payloads {
 		packages := gjson.Parse(payload).Array()
+		tmpPath := flags.TmpPath
+		cabinetCount := 0
+		storedMsi := ""
+
+	outer:
 		for _, pkg := range packages {
 			url := gjson.Get(pkg.String(), "url").String()
 			sha256 := gjson.Get(pkg.String(), "sha256").String()
@@ -44,30 +49,108 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 				fileName = sha256 + ".vsix"
 			}
 
-			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
+			if filepath.Ext(fileName) == ".msi" {
+				tmpPath = filepath.Join(flags.TmpPath, filesystem.GetFileName(fileName))
+			} else if filepath.Ext(fileName) == ".vsix" {
+				tmpPath = flags.TmpPath
+			}
+
+			if err := download.FileValidated(url, sha256, fileName, tmpPath); err != nil {
 				logger.SharedLogger.Errorf("Error downloading MSVC package: %v", err)
 				continue
 			}
 
-			fpath := filepath.Join(flags.TmpPath, fileName)
+			fpath := filepath.Join(tmpPath, fileName)
 
-			logger.SharedLogger.Infof("Extracting: %s", fpath)
-
-			if err := extractVsix(fpath, flags.Dest); err != nil {
-				return err
+			switch filepath.Ext(fpath) {
+			case ".vsix":
+				logger.SharedLogger.Infof("Extracting: %s", fpath)
+				if err := internal.ExtractVsix(fpath, flags.Dest); err != nil {
+					return err
+				}
+				break outer
+			case ".msi":
+				cabinetCount = 1
+				storedMsi = fpath
+			case ".cab":
+				cabinetCount++
+			default:
+				logger.SharedLogger.Warnf("Unknown file format: %s, %s", filepath.Ext(fpath), fpath)
 			}
 
-			break
+			if cabinetCount >= len(packages) {
+				logger.SharedLogger.Infof("Extracting: %s", fpath)
+
+				if err := internal.ExtractMsi(flags, storedMsi, flags.Dest); err != nil {
+					return err
+				}
+
+				break
+			}
 		}
+	}
+
+	if err := moveProgramData(flags); err != nil {
+		return err
+	}
+
+	if err := moveProgramFiles(flags); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func extractVsix(fpath, destpath string) error {
-	if !strings.HasSuffix(fpath, ".vsix") {
-		return errNotVsixFile
+func moveProgramData(flags *aflag.Flags) error {
+	msiProgramData := filepath.Join(flags.Dest, "ProgramData")
+	src := filepath.Join(msiProgramData, "Microsoft", "VisualStudio")
+	dest := filepath.Join(flags.Dest, "VisualStudio")
+
+	if filesystem.Exists(src) {
+		if err := acopy.Copy(src, dest); err != nil {
+			return err
+		}
 	}
 
-	return zip.UnzipByPrefixWithMessenger(fpath, destpath, "Contents", zip.DefaultUnzipMessenger())
+	if err := filesystem.DeleteDirectory(msiProgramData); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func moveProgramFiles(flags *aflag.Flags) error {
+	msiProgramFiles := filepath.Join(flags.Dest, "Program Files")
+
+	dirs, err := os.ReadDir(msiProgramFiles)
+	if err != nil {
+		return err
+	}
+
+	for _, dir := range dirs {
+		if dir.Name() == "Microsoft Visual Studio 14.0" {
+			src := filepath.Join(msiProgramFiles, dir.Name())
+
+			subdirs, err := os.ReadDir(src)
+			if err != nil {
+				return err
+			}
+
+			for _, subdir := range subdirs {
+				if err := acopy.Copy(filepath.Join(src, subdir.Name()), filepath.Join(flags.Dest, subdir.Name())); err != nil {
+					return err
+				}
+			}
+		} else {
+			if err := acopy.Copy(filepath.Join(msiProgramFiles, dir.Name()), filepath.Join(flags.Dest, dir.Name())); err != nil {
+				return err
+			}
+		}
+	}
+
+	if err := filesystem.DeleteDirectory(msiProgramFiles); err != nil {
+		return err
+	}
+
+	return nil
 }

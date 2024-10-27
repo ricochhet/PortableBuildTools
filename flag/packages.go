@@ -64,6 +64,18 @@ func AppendOptionals(msvcPackages, sdkPackages []string, flags *Flags) ([]string
 		}
 	}
 
+	if flags.Vcpkg {
+		msvcAppend = append(msvcAppend, VcpkgPackages(flags)...)
+	}
+
+	if flags.Msbuild {
+		msvcAppend = append(msvcAppend, MsbuildPackages(flags)...)
+
+		if flags.ArmTargets {
+			msvcAppend = append(msvcAppend, MsbuildArmPackages(flags)...)
+		}
+	}
+
 	return msvcAppend, sdkAppend
 }
 
@@ -114,6 +126,8 @@ func MsvcPackages(flags *Flags) []string {
 		"microsoft.visualcpp.tools.common.utils",
 		// MSVC Log
 		"microsoft.visualstudio.log",
+		// MSVC Setup
+		"microsoft.visualstudio.setup.configuration",
 	}
 }
 
@@ -259,5 +273,95 @@ func MfcAtlArmPackages(flags *Flags) []string {
 		// ATL
 		fmt.Sprintf("microsoft.vc.%s.atl.%s.base", flags.MsvcVer, flags.Targetarm64),
 		fmt.Sprintf("microsoft.vc.%s.atl.%s.base", flags.MsvcVer, flags.Targetarm),
+	}
+}
+
+func MsbuildPackages(flags *Flags) []string {
+	return []string{
+		"microsoft.build",
+		"microsoft.build.dependencies",
+
+		"microsoft.visualc.140.msbuild.base.msi",
+		"microsoft.visualc.140.msbuild.base.msi.resources",
+
+		fmt.Sprintf("microsoft.visualc.140.msbuild.%s.msi", flags.Targetx64),
+		fmt.Sprintf("microsoft.visualc.140.msbuild.%s.msi", flags.Targetx86),
+
+		"microsoft.visualstudio.vc.msbuild.base",
+		"microsoft.visualstudio.vc.msbuild.base.resources",
+
+		"microsoft.visualstudio.vc.msbuild.base.uwp",
+
+		"microsoft.visualstudio.vc.msbuild.llvm",
+		"microsoft.visualstudio.vc.msbuild.llvm.resources",
+
+		"microsoft.visualstudio.vc.msbuild.v150.base",
+		"microsoft.visualstudio.vc.msbuild.v150.base.resources",
+		"microsoft.visualstudio.vc.msbuild.v150.uwp",
+
+		"microsoft.visualstudio.vc.msbuild.v150." + flags.Targetx64,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v150.%s.v141", flags.Targetx64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v150.%s.v141_xp", flags.Targetx64),
+
+		"microsoft.visualstudio.vc.msbuild.v150.%s" + flags.Targetx86,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v150.%s.v141", flags.Targetx86),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v150.%s.v141_xp", flags.Targetx86),
+
+		"microsoft.visualstudio.vc.msbuild.v170.base",
+		"microsoft.visualstudio.vc.msbuild.v170.base.resources",
+
+		"microsoft.visualstudio.vc.msbuild.v170." + flags.Targetx64,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.uwp", flags.Targetx64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.v143", flags.Targetx64),
+
+		"microsoft.visualstudio.vc.msbuild.v170." + flags.Targetx86,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.uwp", flags.Targetx86),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.v143", flags.Targetx86),
+
+		"microsoft.visualstudio.vc.msbuild." + flags.Targetx64,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.uwp", flags.Targetx64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.v142", flags.Targetx64),
+
+		"microsoft.visualstudio.vc.msbuild." + flags.Targetx86,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.uwp", flags.Targetx86),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.v142", flags.Targetx86),
+	}
+}
+
+func MsbuildArmPackages(flags *Flags) []string {
+	return []string{
+		fmt.Sprintf("microsoft.visualc.140.msbuild.%s.msi", flags.Targetarm),
+
+		"microsoft.visualstudio.vc.msbuild." + flags.Targetarm64,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.uwp", flags.Targetarm64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.v142", flags.Targetarm64),
+
+		"microsoft.visualstudio.vc.msbuild." + flags.Targetarm,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.uwp", flags.Targetarm),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.%s.v142", flags.Targetarm),
+
+		"microsoft.visualstudio.vc.msbuild.v150." + flags.Targetarm64,
+		"microsoft.visualstudio.vc.msbuild.v150." + flags.Targetarm,
+
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v150.%s.v141", flags.Targetarm64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v150.%s.v141", flags.Targetarm),
+
+		"microsoft.visualstudio.vc.msbuild.v170." + flags.Targetarm64,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.uwp", flags.Targetarm64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.v143", flags.Targetarm64),
+
+		"microsoft.visualstudio.vc.msbuild.v170." + flags.Targetarm,
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.uwp", flags.Targetarm),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%s.v143", flags.Targetarm),
+
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%sec", flags.Targetarm64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%sec.uwp", flags.Targetarm64),
+		fmt.Sprintf("microsoft.visualstudio.vc.msbuild.v170.%sec.v143", flags.Targetarm64),
+	}
+}
+
+func VcpkgPackages(_ *Flags) []string {
+	return []string{
+		"microsoft.visualstudio.vc.vcpkg",
 	}
 }

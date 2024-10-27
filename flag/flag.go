@@ -36,6 +36,8 @@ type Flags struct {
 	UnitTest          bool
 	Cmake             bool
 	MfcAtl            bool
+	Vcpkg             bool
+	Msbuild           bool
 	ManifestURL       string
 	Targetx64         string
 	Targetx86         string

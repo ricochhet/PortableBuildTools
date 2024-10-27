@@ -23,11 +23,16 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 
+	"github.com/ricochhet/minicommon/zip"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
-var errMSIExtractMissing = errors.New("MSIExtract tool was not found")
+var (
+	errMSIExtractMissing = errors.New("MSIExtract tool was not found")
+	errNotVsixFile       = errors.New("file is not a vsix file")
+)
 
 func FindMsiExtract() (string, bool, error) {
 	var executable string
@@ -60,4 +65,12 @@ func ExtractMsi(flags *aflag.Flags, args ...string) error {
 	}
 
 	return Exec(path, rel, args...)
+}
+
+func ExtractVsix(fpath, destpath string) error {
+	if !strings.HasSuffix(fpath, ".vsix") {
+		return errNotVsixFile
+	}
+
+	return zip.UnzipByPrefixWithMessenger(fpath, destpath, "Contents", zip.DefaultUnzipMessenger())
 }

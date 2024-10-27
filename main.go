@@ -139,6 +139,10 @@ func main() {
 		panic(err)
 	}
 
+	if err := internal.CopyInstances(flags); err != nil {
+		panic(err)
+	}
+
 	if flags.Zip {
 		if err := zip.Zip(flags.Dest, flags.DestZip); err != nil {
 			panic(err)

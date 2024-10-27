@@ -33,6 +33,7 @@ postbuild:
 	mkdir -p build/
 	cp portablebuildtools.exe build/
 	cp msiextract/target/release/msiextract.exe build/
+	cp -r _Instances/ build/_Instances/
 
 clean:
 	rm -f portablebuildtools-windows.exe

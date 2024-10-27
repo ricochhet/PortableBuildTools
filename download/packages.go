@@ -22,6 +22,7 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/tidwall/gjson"
 )
@@ -32,6 +33,7 @@ var (
 	diaSdkPid = "microsoft.visualc.140.dia.sdk.msi"   //nolint:gochecknoglobals // ...
 )
 
+//nolint:cyclop // wontfix
 func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]string, []string, []string, []gjson.Result) {
 	packages := gjson.Get(manifest, "packages").Array()
 
@@ -48,7 +50,7 @@ func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]
 			fileType := gjson.Get(pkg.String(), "type").String()
 			language := gjson.Get(pkg.String(), "language").String()
 
-			if fileType == "Vsix" && (language == "en-US" || language == "") {
+			if (fileType == "Vsix" || fileType == "Msi") && (language == "en-US" || language == "" || language == "neutral") {
 				payloads = append(payloads, gjson.Get(pkg.String(), "payloads").String())
 			}
 		} else {
@@ -56,11 +58,14 @@ func GetPackages(flags *aflag.Flags, manifest string, msvcpackages []string) ([]
 			case strings.ToLower(sdkPid):
 				sdkPayloads = gjson.Get(pkg.String(), "payloads").Array()
 			case rtDbgPid:
-				if gjson.Get(pkg.String(), "chip").String() == flags.Host {
+				chip := gjson.Get(pkg.String(), "chip").String()
+				if chip == flags.Host || chip == "neutral" {
 					crtdPayloads = append(crtdPayloads, gjson.Get(pkg.String(), "payloads").String())
 				}
 			case diaSdkPid:
 				diaPayloads = append(diaPayloads, gjson.Get(pkg.String(), "payloads").String())
+			default:
+				logger.SharedLogger.Warnf("Skipping: %s", pid)
 			}
 		}
 	}

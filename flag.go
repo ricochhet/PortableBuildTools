@@ -44,6 +44,8 @@ var (
 		UnitTest:          false,
 		Cmake:             false,
 		MfcAtl:            false,
+		Vcpkg:             false,
+		Msbuild:           false,
 		ManifestURL:       "https://aka.ms/vs/17/release/channel", // https://aka.ms/vs/17/pre/channel
 		Targetx64:         "x64",
 		Targetx86:         "x86",
@@ -78,6 +80,8 @@ func init() {
 	flag.BoolVar(&flags.UnitTest, "unittest", defaults.UnitTest, "Download UnitTest framework")
 	flag.BoolVar(&flags.Cmake, "cmake", defaults.Cmake, "Download Cmake build tools")
 	flag.BoolVar(&flags.MfcAtl, "mfc-atl", defaults.MfcAtl, "Download MFC/ATL libraries")
+	flag.BoolVar(&flags.Vcpkg, "vcpkg", defaults.Vcpkg, "Download VCPKG")
+	flag.BoolVar(&flags.Msbuild, "msbuild", defaults.Msbuild, "Download Msbuild")
 	flag.StringVar(&flags.ManifestURL, "manifest-url", defaults.ManifestURL, "Specify VS manifest url")
 	flag.BoolVar(&flags.WriteEnvironment, "write-env", defaults.WriteEnvironment, "Write environment variable batch scripts")
 	flag.BoolVar(&flags.Verbose, "verbose", defaults.Verbose, "Verbose logging")

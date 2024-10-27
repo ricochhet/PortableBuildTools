@@ -22,6 +22,11 @@ import (
 	"strings"
 )
 
+// vcpkg can struggle to find this instance of MSVC. It is possible to hardcode the path in vcpkg itself.
+//	maybe_append_path(program_files_32_bit / dir, version); --> maybe_append_path("DIR/PATH", version)
+// 	https://github.com/microsoft/vcpkg-tool/blob/98286940d1679efb8debb9fb3259d20094c8ec8c/src/vcpkg/visualstudio.cpp#L166
+// 	Adding set(VCPKG_VISUAL_STUDIO_PATH "DIR/PATH") to a triplet can work as well.
+
 //nolint:lll // constructing batch scripts.
 func NewMsvcX64Environ(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
 	base := []string{
@@ -31,6 +36,7 @@ func NewMsvcX64Environ(msvcVersion, sdkVersion, targetA, targetB, host string, f
 		`SET "VSINSTALLDIR=%ROOT%\"`,
 		`SET "VCINSTALLDIR=%VSINSTALLDIR%VC\"`,
 		`SET "VS140COMNTOOLS=%VSINSTALLDIR%Common7\Tools\"`,
+		`SET "VCPKG_VISUAL_STUDIO_PATH=%VSINSTALLDIR%"`,
 		`SET "UCRTVersion=` + sdkVersion + `"`,
 		`SET "WindowsSdkDir=%VSINSTALLDIR%Windows Kits\10\"`,
 		`SET "UniversalCRTSdkDir=%WindowsSdkDir%"`,
@@ -97,6 +103,25 @@ func NewMsvcX64Environ(msvcVersion, sdkVersion, targetA, targetB, host string, f
 }
 
 //nolint:lll // constructing batch scripts.
+func NewMsvcVsRegister(sdkVersion string) string {
+	base := []string{
+		`@echo off`,
+		"",
+		`SET "ROOT=%~dp0"`,
+		`SET "SDK_VER=` + sdkVersion + `"`,
+		"",
+		`"%SYSTEMROOT%\SysWoW64\regsvr32" "%ROOT%VisualStudio\Setup\x86\Microsoft.VisualStudio.Setup.Configuration.Native.dll"`,
+		`reg add "HKLM\SOFTWARE\Microsoft\VisualStudio\Setup" /v CachePath /d "%ROOT%VisualStudio\Packages" /f`,
+		`reg add "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0" /v InstallationFolder /d "%ROOT%Windows Kits\10\\" /f /reg:32`,
+		`reg add "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0" /v ProductName /d "Microsoft Windows SDK for Windows %SDK_VER%" /f /reg:32`,
+		`reg add "HKLM\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v10.0" /v ProductVersion /d "%SDK_VER%" /f /reg:32`,
+		`reg add "HKLM\SOFTWARE\Microsoft\Windows Kits\Installed Roots" /v KitsRoot10 /d "%ROOT%Windows Kits\10\\" /f /reg:32`,
+	}
+
+	return strings.Join(base, "\n")
+}
+
+//nolint:lll // constructing batch scripts.
 func NewMsvcX86Environ(msvcVersion, sdkVersion, targetA, targetB, host string, flags *Flags) string {
 	base := []string{
 		`@echo off`,
@@ -105,6 +130,7 @@ func NewMsvcX86Environ(msvcVersion, sdkVersion, targetA, targetB, host string, f
 		`SET "VSINSTALLDIR=%ROOT%\"`,
 		`SET "VCINSTALLDIR=%VSINSTALLDIR%VC\"`,
 		`SET "VS140COMNTOOLS=%VSINSTALLDIR%Common7\Tools\"`,
+		`SET "VCPKG_VISUAL_STUDIO_PATH=%VSINSTALLDIR%"`,
 		`SET "UCRTVersion=` + sdkVersion + `"`,
 		`SET "WindowsSdkDir=%VSINSTALLDIR%Windows Kits\10\"`,
 		`SET "UniversalCRTSdkDir=%WindowsSdkDir%"`,

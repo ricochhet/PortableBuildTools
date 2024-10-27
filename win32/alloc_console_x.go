@@ -25,6 +25,6 @@ import (
 	"os"
 )
 
-func AllocConsole() (aIn, aOut, aErr io.Writer) {
-	return os.Stdin, os.Stdout, os.Stderr
+func AllocConsole() (aIn, aOut, aErr io.Writer, e error) {
+	return os.Stdin, os.Stdout, os.Stderr, nil
 }

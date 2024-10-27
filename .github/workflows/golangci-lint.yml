@@ -1,26 +1,32 @@
 name: golangci-lint
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
       - master
+    tags:
+      - v*
   pull_request:
 
 permissions:
   contents: read
-  # Optional: allow read access to pull request. Use with `only-new-issues` option.
-  # pull-requests: read
 
 jobs:
   golangci:
-    name: lint
-    runs-on: ubuntu-latest
+    name: Lint
+    runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - name: Check out source code
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
-      - name: golangci-lint
+          go-version-file: 'go.mod'
+          cache: true
+
+      - name: Lint
         uses: golangci/golangci-lint-action@v6
         with:
           version: latest

@@ -42,6 +42,6 @@ func window() {
 }
 
 func Gui(ver string) {
-	wnd := giu.NewMasterWindow("PortableBuildTools - %s"+ver, 840, 300, 0)
+	wnd := giu.NewMasterWindow("PortableBuildTools - "+ver, 840, 300, 0)
 	wnd.Run(window)
 }

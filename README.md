@@ -24,6 +24,11 @@ Create standalone instances of VS Build Tools.
     - Cmake can be downloaded by appending the `--cmake` flag.
     - MFC/ATL libraries can be downloaded by appending the `--mfc-atl` flag.
 
+# Registering (Experimental)
+- Modify `_Instances/state.json` paths to match the download location. Modify additional files and values as needed.
+- Run `vs_register.bat`
+- Run `vswhere.exe` to check if your instance is registered.
+
 ## Testing
 Rudimentary testing is located in `tests/*`
 - After downloading the standalone SDK, run the tests via `build_win.bat`.

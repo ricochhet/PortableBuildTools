@@ -25,6 +25,6 @@ import (
 	"os"
 )
 
-func AllocConsole() (aIn, aOut, aErr io.Writer, e error) {
+func AllocConsole() (aIn, aOut, aErr io.Writer, e error) { //nolint:nonamedreturns // wontfix
 	return os.Stdin, os.Stdout, os.Stderr, nil
 }

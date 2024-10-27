@@ -28,7 +28,7 @@ func AttachConsole() error {
 	return nil
 }
 
-var wstdin, wstdout, wstderr *os.File
+var wstdin, wstdout, wstderr *os.File //nolint:unused // wontfix
 
 func AttachConsoleW() error {
 	return nil

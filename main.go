@@ -58,24 +58,16 @@ func main() {
 		}
 	}()
 
-	if len(os.Args) > 1 {
-		if err := win32.AttachConsoleW(); err != nil {
-			panic(err)
-		}
-
-		logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, os.Stdout), log.Lshortfile|log.LstdFlags)
-
-		Cli(flags)
-	} else {
-		_, aOut, _, err := win32.AllocConsole()
-		if err != nil {
-			panic(err)
-		}
-
-		logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, aOut), log.Lshortfile|log.LstdFlags)
-
-		logger.SharedLogger.Info("Initialized!")
-
-		Gui(gitHash)
+	if err := win32.GuiConsoleHandle(os.Args, 1,
+		func(_, cout, _ io.Writer) {
+			logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, cout), log.Lshortfile|log.LstdFlags)
+			Cli(flags)
+		},
+		func(_, cout, _ io.Writer) {
+			logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, cout), log.Lshortfile|log.LstdFlags)
+			logger.SharedLogger.Info("Initialized!")
+			Gui(gitHash)
+		}); err != nil {
+		panic(err)
 	}
 }

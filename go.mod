@@ -7,7 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/AllenDang/giu v0.9.1-0.20241026215826-cdbcd33dbed7
 	github.com/otiai10/copy v1.14.1-0.20240925044834-49b0b590f1e1
-	github.com/ricochhet/minicommon v0.0.0-20241027225031-c4dfa9ecb182
+	github.com/ricochhet/minicommon v0.0.0-20241028043843-162557e6fd1f
 	github.com/tidwall/gjson v1.18.0
 )
 

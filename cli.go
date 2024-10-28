@@ -19,11 +19,17 @@
 package main
 
 import (
+	"io"
+	"log"
+
 	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
-func Cli(flags *aflag.Flags) {
+//nolint:mnd // wontfix
+func Cli(flags *aflag.Flags, logfile, cout io.Writer) {
+	logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, cout), log.Lshortfile|log.LstdFlags)
+
 	errCh := make(chan error, 3) //nolint:mnd // wontfix
 
 	if flags.Version {

@@ -32,6 +32,7 @@ var (
 	gitHash   string //nolint:gochecknoglobals // wontfix
 	buildDate string //nolint:gochecknoglobals // wontfix
 	buildOn   string //nolint:gochecknoglobals // wontfix
+	debug     bool   //nolint:gochecknoglobals // wontfix
 )
 
 func printVersion() {
@@ -49,7 +50,6 @@ func logFile() *os.File { //nolint:mnd // wontfix
 	return file
 }
 
-//nolint:mnd // wontfix
 func main() {
 	logfile := logFile()
 	defer func() {
@@ -60,14 +60,11 @@ func main() {
 
 	if err := win32.GuiConsoleHandle(os.Args, 1,
 		func(_, cout, _ io.Writer) {
-			logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, cout), log.Lshortfile|log.LstdFlags)
-			Cli(flags)
+			Cli(flags, logfile, cout)
 		},
-		func(_, cout, _ io.Writer) {
-			logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, cout), log.Lshortfile|log.LstdFlags)
-			logger.SharedLogger.Info("Initialized!")
-			Gui(gitHash)
-		}); err != nil {
+		func(_, _, _ io.Writer) {
+			Gui(gitHash, logfile)
+		}, debug); err != nil {
 		panic(err)
 	}
 }

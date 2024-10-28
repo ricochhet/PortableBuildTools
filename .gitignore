@@ -5,3 +5,4 @@ target
 *.bin
 *.o
 .releases
+*.syso

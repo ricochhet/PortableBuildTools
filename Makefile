@@ -23,6 +23,9 @@ test:
 deadcode:
 	deadcode ./...
 
+syso:
+	windres portablebuildtools.rc -O coff -o portablebuildtools.syso
+
 msiextract:
 	cargo build --release --manifest-path msiextract/Cargo.toml
 

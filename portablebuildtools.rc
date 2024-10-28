@@ -1,0 +1,2 @@
+id ICON "./public/win_icon.ico"
+GLFW_ICON ICON "./public/win_icon.ico"

@@ -5,6 +5,14 @@ Create standalone instances of VS Build Tools.
 > #### Under Development
 > ###### There is no stable version.
 
+## Privacy
+`modmanager` is an open source project. Your commit credentials as author of a commit will be visible by anyone. Please make sure you understand this before submitting a PR.
+Feel free to use a "fake" username and email on your commits by using the following commands:
+```bash
+git config --local user.name "USERNAME"
+git config --local user.email "USERNAME@SOMETHING.com"
+```
+
 ## Requirements (Building)
 - Go 1.22 or later.
 - Rust 1.78 or later.

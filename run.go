@@ -70,17 +70,13 @@ func runWerr(errCh chan<- error) { //nolint:funlen,cyclop // wontfix
 	msvcPackages := aflag.SetPackages(flags, flags.SetMsvcPackages, aflag.MsvcPackages(flags))
 	sdkPackages := aflag.SetPackages(flags, flags.SetWinSdkPackages, aflag.WinSdkPackages(flags))
 
-	cwd, err := internal.CreateDirectories(flags)
+	_, err := internal.CreateDirectories(flags)
 	if err != nil {
 		errCh <- err
 
 		return
 	}
 
-	flags.TmpPath = filepath.Join(cwd, flags.TmpPath)
-	flags.TmpCrtd = filepath.Join(cwd, flags.TmpCrtd)
-	flags.TmpDia = filepath.Join(cwd, flags.TmpDia)
-	flags.Dest = filepath.Join(cwd, flags.Dest)
 	msvcPackages, sdkPackages = aflag.AppendOptionals(msvcPackages, sdkPackages, flags)
 
 	vsManifestJSON, err := download.GetManifest(flags)

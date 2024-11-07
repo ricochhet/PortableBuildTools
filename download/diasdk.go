@@ -23,8 +23,8 @@ import (
 	"path/filepath"
 
 	acopy "github.com/otiai10/copy"
+	"github.com/ricochhet/minicommon/charmbracelet"
 	"github.com/ricochhet/minicommon/download"
-	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/tidwall/gjson"
@@ -43,7 +43,7 @@ func GetDiaSdk(payloads []string, destx64, destx86, destarm, destarm64 string, f
 			fileName := pkg.Get("fileName").String()
 
 			if err := download.FileValidated(url, sha256, fileName, flags.TmpDia); err != nil {
-				logger.SharedLogger.Errorf("Error downloading DIA SDK package: %v", err)
+				charmbracelet.SharedLogger.Errorf("Error downloading DIA SDK package: %v", err)
 				continue
 			}
 		}

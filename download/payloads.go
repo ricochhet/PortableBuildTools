@@ -23,9 +23,9 @@ import (
 	"path/filepath"
 
 	acopy "github.com/otiai10/copy"
+	"github.com/ricochhet/minicommon/charmbracelet"
 	"github.com/ricochhet/minicommon/download"
 	"github.com/ricochhet/minicommon/filesystem"
-	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/tidwall/gjson"
@@ -56,7 +56,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 			}
 
 			if err := download.FileValidated(url, sha256, fileName, tmpPath); err != nil {
-				logger.SharedLogger.Errorf("Error downloading MSVC package: %v", err)
+				charmbracelet.SharedLogger.Errorf("Error downloading MSVC package: %v", err)
 				continue
 			}
 
@@ -64,7 +64,7 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 
 			switch filepath.Ext(fpath) {
 			case ".vsix":
-				logger.SharedLogger.Infof("Extracting: %s", fpath)
+				charmbracelet.SharedLogger.Infof("Extracting: %s", fpath)
 				if err := internal.ExtractVsix(fpath, flags.Dest); err != nil {
 					return err
 				}
@@ -75,11 +75,11 @@ func GetPayloads(flags *aflag.Flags, payloads []string) error {
 			case ".cab":
 				cabinetCount++
 			default:
-				logger.SharedLogger.Warnf("Unknown file format: %s, %s", filepath.Ext(fpath), fpath)
+				charmbracelet.SharedLogger.Warnf("Unknown file format: %s, %s", filepath.Ext(fpath), fpath)
 			}
 
 			if cabinetCount >= len(packages) {
-				logger.SharedLogger.Infof("Extracting: %s", fpath)
+				charmbracelet.SharedLogger.Infof("Extracting: %s", fpath)
 
 				if err := internal.ExtractMsi(flags, storedMsi, flags.Dest); err != nil {
 					return err

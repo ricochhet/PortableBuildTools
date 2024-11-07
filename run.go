@@ -23,7 +23,7 @@ import (
 	"path/filepath"
 
 	"github.com/AllenDang/giu"
-	"github.com/ricochhet/minicommon/logger"
+	"github.com/ricochhet/minicommon/charmbracelet"
 	"github.com/ricochhet/minicommon/zip"
 	"github.com/ricochhet/portablebuildtools/download"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
@@ -38,13 +38,13 @@ func run() {
 	working = true
 
 	go func() {
-		logger.SharedLogger.Info("... DOWNLOADING")
+		charmbracelet.SharedLogger.Info("... DOWNLOADING")
 
 		go runWerr(errCh)
 
 		for err := range errCh {
 			if err != nil {
-				logger.SharedLogger.Errorf("ERROR: %v", err)
+				charmbracelet.SharedLogger.Errorf("ERROR: %v", err)
 
 				working = false
 			}
@@ -52,7 +52,7 @@ func run() {
 
 		working = false
 
-		logger.SharedLogger.Info("... DONE")
+		charmbracelet.SharedLogger.Info("... DONE")
 
 		giu.Update()
 	}()
@@ -163,19 +163,19 @@ func writeEnvironments() {
 	working = true
 
 	go func() {
-		logger.SharedLogger.Info("... WRITING")
+		charmbracelet.SharedLogger.Info("... WRITING")
 
 		go writeEnvironmentsWerr(errCh)
 
 		for err := range errCh {
 			if err != nil {
-				logger.SharedLogger.Errorf("ERROR: %v", err)
+				charmbracelet.SharedLogger.Errorf("ERROR: %v", err)
 			}
 		}
 
 		working = false
 
-		logger.SharedLogger.Info("... DONE")
+		charmbracelet.SharedLogger.Info("... DONE")
 
 		giu.Update()
 	}()

@@ -20,15 +20,13 @@ package main
 
 import (
 	"io"
-	"log"
 
-	"github.com/ricochhet/minicommon/logger"
+	"github.com/ricochhet/minicommon/charmbracelet"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 )
 
-//nolint:mnd // wontfix
 func Cli(flags *aflag.Flags, logfile, cout io.Writer) {
-	logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, cout), log.Lshortfile|log.LstdFlags)
+	charmbracelet.SharedLogger = charmbracelet.NewMultiLogger(logfile, cout)
 
 	errCh := make(chan error, 3) //nolint:mnd // wontfix
 
@@ -41,7 +39,7 @@ func Cli(flags *aflag.Flags, logfile, cout io.Writer) {
 
 	for err := range errCh {
 		if err != nil {
-			logger.SharedLogger.Fatalf("FATAL: %v", err)
+			charmbracelet.SharedLogger.Fatalf("FATAL: %v", err)
 		}
 	}
 
@@ -49,7 +47,7 @@ func Cli(flags *aflag.Flags, logfile, cout io.Writer) {
 
 	for err := range errCh {
 		if err != nil {
-			logger.SharedLogger.Fatalf("FATAL: %v", err)
+			charmbracelet.SharedLogger.Fatalf("FATAL: %v", err)
 		}
 	}
 }

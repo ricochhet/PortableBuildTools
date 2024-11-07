@@ -24,8 +24,8 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/ricochhet/minicommon/charmbracelet"
 	"github.com/ricochhet/minicommon/download"
-	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/tidwall/gjson"
@@ -45,7 +45,7 @@ func GetWinSdk(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 			fileName := strings.TrimPrefix(name, installerPrefix)
 			installer, err := download.FileWithBytesValidated(url, sha256, fileName, flags.TmpPath)
 			if err != nil { //nolint:wsl // gofumpt conflict
-				logger.SharedLogger.Errorf("Error downloading Windows SDK package: %v", err)
+				charmbracelet.SharedLogger.Errorf("Error downloading Windows SDK package: %v", err)
 				continue
 			}
 
@@ -63,7 +63,7 @@ func GetWinSdk(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 			fileName := strings.TrimPrefix(name, installerPrefix)
 
 			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
-				logger.SharedLogger.Errorf("Error downloading cab: %v", err)
+				charmbracelet.SharedLogger.Errorf("Error downloading cab: %v", err)
 				continue
 			}
 		}

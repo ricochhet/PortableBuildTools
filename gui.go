@@ -22,10 +22,9 @@ package main
 import (
 	"bytes"
 	"io"
-	"log"
 
 	"github.com/AllenDang/giu"
-	"github.com/ricochhet/minicommon/logger"
+	"github.com/ricochhet/minicommon/charmbracelet"
 )
 
 var (
@@ -76,8 +75,8 @@ func window() {
 }
 
 func Gui(ver string, logfile io.Writer) {
-	logger.SharedLogger = logger.NewLogger(4, logger.InfoLevel, io.MultiWriter(logfile, &buf), log.Lshortfile|log.LstdFlags)
-	logger.SharedLogger.Info("Initialized!")
+	charmbracelet.SharedLogger = charmbracelet.NewMultiLogger(logfile, &buf)
+	charmbracelet.SharedLogger.Info("Initialized!")
 
 	wnd := giu.NewMasterWindow("PortableBuildTools - "+ver, 840, 500, 0)
 	wnd.Run(window)

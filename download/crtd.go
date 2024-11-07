@@ -24,8 +24,8 @@ import (
 	"path/filepath"
 
 	acopy "github.com/otiai10/copy"
+	"github.com/ricochhet/minicommon/charmbracelet"
 	"github.com/ricochhet/minicommon/download"
-	"github.com/ricochhet/minicommon/logger"
 	aflag "github.com/ricochhet/portablebuildtools/flag"
 	"github.com/ricochhet/portablebuildtools/internal"
 	"github.com/tidwall/gjson"
@@ -40,7 +40,7 @@ func GetCrtd(payloads []string, destx64, destx86, destarm, destarm64 string, fla
 			fileName := pkg.Get("fileName").String()
 
 			if err := download.FileValidated(url, sha256, fileName, flags.TmpPath); err != nil {
-				logger.SharedLogger.Errorf("Error downloading CRTD package: %v", err)
+				charmbracelet.SharedLogger.Errorf("Error downloading CRTD package: %v", err)
 				continue
 			}
 		}

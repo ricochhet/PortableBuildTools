@@ -22,8 +22,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-
-	"github.com/ricochhet/minicommon/logger"
 )
 
 func Exec(command string, relative bool, args ...string) error {
@@ -39,8 +37,8 @@ func Exec(command string, relative bool, args ...string) error {
 	}
 
 	cmd := exec.Command(path, args...)
-	cmd.Stdout = logger.SharedLogger.Writer
-	cmd.Stderr = logger.SharedLogger.Writer
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
 		return err

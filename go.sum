@@ -26,8 +26,8 @@ github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c h1:+mdjkGKdHQG3305AYmd
 github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c/go.mod h1:7rwL4CYBLnjLxUqIJNnCWiEdr3bn6IUYi15bNlnbCCU=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/ricochhet/minicommon v0.0.0-20241028162430-75c039358668 h1:tiipfhuKJefXSW7bvSHPoaq5FnEAUwx53vrei5bOBJk=
-github.com/ricochhet/minicommon v0.0.0-20241028162430-75c039358668/go.mod h1:cmb4GW+1w0mZbpeSuVK2f9yCxsqHZ8HAHxNwxO+0R3s=
+github.com/ricochhet/minicommon v0.0.0-20241107023349-19bcc6566a6e h1:K2SRm4oS4GxRc/1STyjJpm9gK9aq++v1EahXgeOb9ko=
+github.com/ricochhet/minicommon v0.0.0-20241107023349-19bcc6566a6e/go.mod h1:Cgj10HCL+G53r2bc4nO4D86k3MnRruT1YmfEFJGPrQw=
 github.com/sahilm/fuzzy v0.1.1 h1:ceu5RHF8DGgoi+/dR5PsECjCDH1BE3Fnmpo7aVXOdRA=
 github.com/sahilm/fuzzy v0.1.1/go.mod h1:VFvziUEIMCrT6A6tw2RFIXPXXmzXbOsSHF0DOI8ZK9Y=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=

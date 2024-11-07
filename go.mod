@@ -5,7 +5,7 @@ go 1.23.2
 require (
 	github.com/AllenDang/giu v0.10.0
 	github.com/otiai10/copy v1.14.1-0.20240925044834-49b0b590f1e1
-	github.com/ricochhet/minicommon v0.0.0-20241028162430-75c039358668
+	github.com/ricochhet/minicommon v0.0.0-20241107023349-19bcc6566a6e
 	github.com/tidwall/gjson v1.18.0
 )
 

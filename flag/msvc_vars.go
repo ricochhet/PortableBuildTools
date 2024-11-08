@@ -99,6 +99,12 @@ func NewMsvcX64Environ(msvcVersion, sdkVersion, targetA, targetB, host string, f
 		)
 	}
 
+	if flags.Cmake {
+		base = append(base, "",
+			`@if exist "%VSINSTALLDIR%Common7\IDE\CommonExtensions\Microsoft\Cmake\Cmake\bin" set "PATH=%VSINSTALLDIR%Common7\IDE\CommonExtensions\Microsoft\Cmake\Cmake\bin;%PATH%"`,
+		)
+	}
+
 	return strings.Join(base, "\n")
 }
 
@@ -191,6 +197,12 @@ func NewMsvcX86Environ(msvcVersion, sdkVersion, targetA, targetB, host string, f
 			`@if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIB=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIB%"`,
 			`@if exist "%LLVM_PATH%\LIB\CLANG\17\LIB" set "LIBPATH=%LLVM_PATH%\LIB\CLANG\17\LIB;%LIBPATH%"`,
 			`@if exist "%LLVM_PATH%\LIB\CLANG\17\INCLUDE" set "INCLUDE=%LLVM_PATH%\LIB\CLANG\17\INCLUDE;%INCLUDE%"`)
+	}
+
+	if flags.Cmake {
+		base = append(base, "",
+			`@if exist "%VSINSTALLDIR%Common7\IDE\CommonExtensions\Microsoft\Cmake\Cmake\bin" set "PATH=%VSINSTALLDIR%Common7\IDE\CommonExtensions\Microsoft\Cmake\Cmake\bin;%PATH%"`,
+		)
 	}
 
 	return strings.Join(base, "\n")

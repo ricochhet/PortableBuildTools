@@ -115,6 +115,7 @@ func MsvcPackages(flags *Flags) []string {
 		// MSVC redist
 		"microsoft.visualcpp.crt.redist." + flags.Targetx64,
 		"microsoft.visualcpp.crt.redist." + flags.Targetx86,
+		"microsoft.visualcpp.servicing.redist",
 		// MSVC UnitTest
 		"microsoft.visualstudio.vc.unittest.desktop.build.core",
 		"microsoft.visualstudio.testtools.codecoverage",

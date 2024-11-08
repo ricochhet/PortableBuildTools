@@ -28,7 +28,7 @@ var (
 	flags    *aflag.Flags = Newflag()    //nolint:gochecknoglobals // ...
 	defaults              = aflag.Flags{ //nolint:gochecknoglobals // ...
 		Version:           false,
-		MsvcVer:           "14.39.17.9",
+		MsvcVer:           "14.41.17.11",
 		WinSdkVer:         "Win11SDK_10.0.22621",
 		Dest:              "build/sdk_standalone",
 		DestZip:           "build/sdk_standalone.zip",

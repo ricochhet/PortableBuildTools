@@ -165,6 +165,8 @@ func writeEnvironments() {
 	go func() {
 		charmbracelet.SharedLogger.Info("... WRITING")
 
+		flags.WriteEnvironment = true
+
 		go writeEnvironmentsWerr(errCh)
 
 		for err := range errCh {
@@ -182,6 +184,8 @@ func writeEnvironments() {
 }
 
 func writeEnvironmentsWerr(errCh chan<- error) {
+	defer close(errCh)
+
 	if flags.WriteEnvironment {
 		if err := internal.WriteEnvironment(flags); err != nil {
 			errCh <- err

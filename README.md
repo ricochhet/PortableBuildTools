@@ -13,6 +13,10 @@ git config --local user.name "USERNAME"
 git config --local user.email "USERNAME@SOMETHING.com"
 ```
 
+## Known Issues
+- `cstdlib` cannot find headers such as `math.h` `string.h` `crtdbg.h` etc.
+    - If you know how to fix this, please open an issue specifying what you did.
+
 ## Requirements (Building)
 - Go 1.22 or later.
 - Rust 1.78 or later.

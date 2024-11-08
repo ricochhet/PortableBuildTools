@@ -40,11 +40,11 @@ func GetWinSdk(flags *aflag.Flags, packages []gjson.Result, winsdkpackages []str
 		name := pkg.Get("fileName").String()
 		url := pkg.Get("url").String()
 		sha256 := pkg.Get("sha256").String()
+		fileName := strings.TrimPrefix(name, installerPrefix)
 
 		if slices.Contains(winsdkpackages, name) {
-			fileName := strings.TrimPrefix(name, installerPrefix)
 			installer, err := download.FileWithBytesValidated(url, sha256, fileName, flags.TmpPath)
-			if err != nil { //nolint:wsl // gofumpt conflict
+			if err != nil {
 				charmbracelet.SharedLogger.Errorf("Error downloading Windows SDK package: %v", err)
 				continue
 			}

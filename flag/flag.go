@@ -27,6 +27,7 @@ type Flags struct {
 	TmpPath           string // temporary download files
 	TmpCrtd           string
 	TmpDia            string
+	Cwd               bool
 	Host              string // or x86
 	SetMsvcPackages   string
 	SetWinSdkPackages string

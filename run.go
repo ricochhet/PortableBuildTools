@@ -58,7 +58,7 @@ func run() {
 	}()
 }
 
-func runWerr(errCh chan<- error) { //nolint:funlen,cyclop // wontfix
+func runWerr(errCh chan<- error) { //nolint:funlen,cyclop,gocyclo // wontfix
 	defer close(errCh)
 
 	if _, _, err := internal.FindMsiExtract(); err != nil {
@@ -70,11 +70,18 @@ func runWerr(errCh chan<- error) { //nolint:funlen,cyclop // wontfix
 	msvcPackages := aflag.SetPackages(flags, flags.SetMsvcPackages, aflag.MsvcPackages(flags))
 	sdkPackages := aflag.SetPackages(flags, flags.SetWinSdkPackages, aflag.WinSdkPackages(flags))
 
-	_, err := internal.CreateDirectories(flags)
+	cwd, err := internal.CreateDirectories(flags)
 	if err != nil {
 		errCh <- err
 
 		return
+	}
+
+	if flags.Cwd {
+		flags.TmpPath = filepath.Join(cwd, flags.TmpPath)
+		flags.TmpCrtd = filepath.Join(cwd, flags.TmpCrtd)
+		flags.TmpDia = filepath.Join(cwd, flags.TmpDia)
+		flags.Dest = filepath.Join(cwd, flags.Dest)
 	}
 
 	msvcPackages, sdkPackages = aflag.AppendOptionals(msvcPackages, sdkPackages, flags)

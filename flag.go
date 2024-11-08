@@ -35,6 +35,7 @@ var (
 		TmpPath:           "build/downloads",
 		TmpCrtd:           "build/downloads/crtd",
 		TmpDia:            "build/downloads/dia",
+		Cwd:               true,
 		Host:              "x64",
 		SetMsvcPackages:   "",
 		SetWinSdkPackages: "",
@@ -71,6 +72,7 @@ func init() {
 	flag.StringVar(&flags.TmpPath, "tmp", defaults.TmpPath, "Specify temporary download files folder")
 	flag.StringVar(&flags.TmpCrtd, "tmp-crtd", defaults.TmpCrtd, "Specify temporary download files folder for CRTD")
 	flag.StringVar(&flags.TmpDia, "tmp-dia", defaults.TmpDia, "Specify temporary download files folder for DIA SDK")
+	flag.BoolVar(&flags.Cwd, "cwd", defaults.Cwd, "Use the current working directory in the full path")
 	flag.StringVar(&flags.Host, "host", defaults.Host, "Specify host architecture (x64 or x86)")
 	flag.StringVar(&flags.SetMsvcPackages, "msvc-packages", defaults.SetMsvcPackages, "Specify a list file of MSVC packages to download")
 	flag.StringVar(&flags.SetWinSdkPackages, "sdk-packages", defaults.SetWinSdkPackages, "Specify a list file of Windows SDK packages to download")

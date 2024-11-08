@@ -22,6 +22,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/ricochhet/minicommon/charmbracelet"
 	"github.com/ricochhet/minicommon/filesystem"
@@ -36,9 +37,7 @@ var (
 )
 
 func printVersion() {
-	charmbracelet.SharedLogger.Info(buildOn)
-	charmbracelet.SharedLogger.Infof("GitHash: %s", gitHash)
-	charmbracelet.SharedLogger.Infof("Build Date: %s", buildDate)
+	charmbracelet.SharedLogger.Info("version", "go", strings.TrimPrefix(buildOn, "go version "), "revision", gitHash, "date", buildDate)
 }
 
 func logFile() *os.File { //nolint:mnd // wontfix

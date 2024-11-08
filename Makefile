@@ -1,4 +1,4 @@
-LDFLAGS=-X 'main.buildDate=$(shell date)' -X 'main.gitHash=$(shell git rev-parse HEAD)' -X 'main.buildOn=$(shell go version)' -w -s -H=windowsgui
+LDFLAGS=-X 'main.buildDate=$(shell date)' -X 'main.gitHash=$(shell git rev-parse --short HEAD)' -X 'main.buildOn=$(shell go version)' -w -s -H=windowsgui
 
 GO_BUILD=go build -trimpath -ldflags "$(LDFLAGS)"
 

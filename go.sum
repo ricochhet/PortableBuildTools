@@ -1,7 +1,7 @@
-github.com/AllenDang/cimgui-go v1.1.0 h1:hltblxjy6Q+/TxOQLjI45yVlCn/DQSC9DLTtKc8PhfQ=
-github.com/AllenDang/cimgui-go v1.1.0/go.mod h1:v5iftKz+rJRG6TArxibxqqOhVqUyzMkqbX90iC2Mqe0=
-github.com/AllenDang/giu v0.10.0 h1:kgZ137hITpFzRVp210f/SrR28mPm/RKSqz/IPodcC6g=
-github.com/AllenDang/giu v0.10.0/go.mod h1:K16XldHY1Fwbq00hW4gvstgjbwCGH3B94i92kbYtTLk=
+github.com/AllenDang/cimgui-go v1.2.0 h1:xlsBNlGW2n4X6WYi0B84iOoAYWQT+iJFKWM2iZvpzNI=
+github.com/AllenDang/cimgui-go v1.2.0/go.mod h1:KT0QhbfG00LVdgN/eOGhnrSSG8lMfdBvYmZJCBgp2JM=
+github.com/AllenDang/giu v0.11.0 h1:KeceOKpZNK/GlFqqr6yGQ0I1hpxpn3cDVIUJ/oP51g8=
+github.com/AllenDang/giu v0.11.0/go.mod h1:aKs82N/5oOWAwYpevGNPbtYpTOQqhlvYlC2QJo19rOY=
 github.com/AllenDang/go-findfont v0.0.0-20200702051237-9f180485aeb8 h1:dKZMqib/yUDoCFigmz2agG8geZ/e3iRq304/KJXqKyw=
 github.com/AllenDang/go-findfont v0.0.0-20200702051237-9f180485aeb8/go.mod h1:b4uuDd0s6KRIPa84cEEchdQ9ICh7K0OryZHbSzMca9k=
 github.com/aymanbagabas/go-osc52/v2 v2.0.1 h1:HwpRHbFMcZLEVr42D4p7XBqjyuxQH5SMiErDT4WkJ2k=
@@ -66,8 +66,8 @@ golang.design/x/mainthread v0.3.0 h1:UwFus0lcPodNpMOGoQMe87jSFwbSsEY//CA7yVmu4j8
 golang.design/x/mainthread v0.3.0/go.mod h1:vYX7cF2b3pTJMGM/hc13NmN6kblKnf4/IyvHeu259L0=
 golang.org/x/exp v0.0.0-20231006140011-7918f672742d h1:jtJma62tbqLibJ5sFQz8bKtEM8rJBtfilJ2qTU199MI=
 golang.org/x/exp v0.0.0-20231006140011-7918f672742d/go.mod h1:ldy0pHrwJyGW56pPQzzkH36rKxoZW1tw7ZJpeKx+hdo=
-golang.org/x/image v0.21.0 h1:c5qV36ajHpdj4Qi0GnE0jUc/yuo33OLFaa0d+crTD5s=
-golang.org/x/image v0.21.0/go.mod h1:vUbsLavqK/W303ZroQQVKQ+Af3Yl6Uz1Ppu5J/cLz78=
+golang.org/x/image v0.22.0 h1:UtK5yLUzilVrkjMAZAZ34DXGpASN8i8pj8g+O+yd10g=
+golang.org/x/image v0.22.0/go.mod h1:9hPFhljd4zZ1GNSIZJ49sqbp45GKK9t6w+iXvGqZUz4=
 golang.org/x/sync v0.8.0 h1:3NFvSEYkUoMifnESzZl15y791HH1qU2xm6eCJU5ZPXQ=
 golang.org/x/sync v0.8.0/go.mod h1:Czt+wKu1gCyEFDUtn0jG5QVvpJ6rzVqr5aXyt9drQfk=
 golang.org/x/sys v0.0.0-20201022201747-fb209a7c41cd/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
